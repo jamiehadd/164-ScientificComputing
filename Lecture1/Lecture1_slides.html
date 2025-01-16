@@ -1,0 +1,1415 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="Lecture1_files/libs/clipboard/clipboard.min.js"></script>
+<script src="Lecture1_files/libs/quarto-html/tabby.min.js"></script>
+<script src="Lecture1_files/libs/quarto-html/popper.min.js"></script>
+<script src="Lecture1_files/libs/quarto-html/tippy.umd.min.js"></script>
+<link href="Lecture1_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="Lecture1_files/libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="Lecture1_files/libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.6.40">
+
+  <meta name="author" content="Jamie Haddock">
+  <title>Lecture 1: Floating point numbers, Conditioning</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="Lecture1_files/libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="Lecture1_files/libs/revealjs/dist/reveal.css">
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      { color: #003b4f; background-color: #f1f3f5; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #003b4f; } /* Normal */
+    code span.al { color: #ad0000; } /* Alert */
+    code span.an { color: #5e5e5e; } /* Annotation */
+    code span.at { color: #657422; } /* Attribute */
+    code span.bn { color: #ad0000; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #003b4f; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #20794d; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #5e5e5e; } /* Comment */
+    code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+    code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+    code span.dt { color: #ad0000; } /* DataType */
+    code span.dv { color: #ad0000; } /* DecVal */
+    code span.er { color: #ad0000; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #ad0000; } /* Float */
+    code span.fu { color: #4758ab; } /* Function */
+    code span.im { color: #00769e; } /* Import */
+    code span.in { color: #5e5e5e; } /* Information */
+    code span.kw { color: #003b4f; font-weight: bold; } /* Keyword */
+    code span.op { color: #5e5e5e; } /* Operator */
+    code span.ot { color: #003b4f; } /* Other */
+    code span.pp { color: #ad0000; } /* Preprocessor */
+    code span.sc { color: #5e5e5e; } /* SpecialChar */
+    code span.ss { color: #20794d; } /* SpecialString */
+    code span.st { color: #20794d; } /* String */
+    code span.va { color: #111111; } /* Variable */
+    code span.vs { color: #20794d; } /* VerbatimString */
+    code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="Lecture1_files/libs/revealjs/dist/theme/quarto-bbe7401fe57d4b791b917637bb662036.css">
+  <link rel="stylesheet" href="input/slides.css">
+  <link href="Lecture1_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="Lecture1_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="Lecture1_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="Lecture1_files/libs/revealjs/plugin/reveal-chalkboard/font-awesome/css/all.css" rel="stylesheet">
+  <link href="Lecture1_files/libs/revealjs/plugin/reveal-chalkboard/style.css" rel="stylesheet">
+  <link href="Lecture1_files/libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">Lecture 1: Floating point numbers, Conditioning</h1>
+
+<div class="quarto-title-authors">
+<div class="quarto-title-author">
+<div class="quarto-title-author-name">
+Jamie Haddock 
+</div>
+</div>
+</div>
+
+</section>
+<section>
+<section id="floating-point-numbers" class="title-slide slide level1 center">
+<h1>Floating-point numbers</h1>
+
+</section>
+<section id="what-are-floating-point-numbers" class="slide level2">
+<h2>What are floating-point numbers?</h2>
+<p>The real numbers <span class="math inline">\(\mathbb{R}\)</span> are infinite in two ways:</p>
+<ul>
+<li class="fragment">the numbers within are unbounded, and</li>
+<li class="fragment">between any two real numbers that are not equal, there are infinitely many real numbers.</li>
+</ul>
+<div class="fragment">
+<p>In computation, the second type of infiniteness has many consequences! </p>
+</div>
+</section>
+<section class="slide level2">
+
+<p>Note that computers necessarily have finite memory and thus cannot exactly represent all real numbers.</p>
+<div class="callout callout-caution no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Exercise: How many numbers?</strong></p>
+</div>
+<div class="callout-content">
+<p>How many real numbers can be represented with 32 bits<sup>1</sup> (“binary digits”)?</p>
+</div>
+</div>
+</div>
+<details>
+<summary>
+Answer:
+</summary>
+<span class="math inline">\(2^{32}\)</span>
+</details>
+<div class="fragment">
+<div class="callout callout-caution no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Exercise: Which numbers?</strong></p>
+</div>
+<div class="callout-content">
+<p>Given 32 bits (“binary digits”), which numbers are represented?</p>
+</div>
+</div>
+</div>
+<details>
+<summary>
+Answer:
+</summary>
+We don’t know!
+</details>
+</div>
+<aside><ol class="aside-footnotes"><li id="fn1"><p>Note: “Bit” was coined by Claude Shannon (of information theory fame – e.g., “Shannon entropy”) and attributed to Tukey (a famous statistician)!</p></li></ol></aside></section>
+<section class="slide level2">
+
+<p>There are a finite number of real numbers that can be represented in memory, and there are <em>many</em> sets of numbers that one can choose to represent.</p>
+<div id="note-floatingpointnumbers">
+<div id="note-floatingpointnumbers" class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Definition: Floating-point numbers</strong></p>
+</div>
+<div class="callout-content">
+<p>The set <span class="math inline">\(\mathbb{F}\)</span> of <strong>floating-point numbers</strong> consists of zero and all numbers of the form <span class="math display">\[\pm (1 + f) \times 2^n,\]</span> where <span class="math inline">\(n\)</span> is an integer called the <strong>exponent</strong>, and <span class="math inline">\(1 + f\)</span> is the <strong>mantissa</strong> or <strong>significand</strong>, in which <span class="math inline">\(f\)</span> is a binary fraction, <span class="math display">\[f = \sum_{i=1}^d b_i 2^{-i}, \quad\quad b_i \in \{0,1\},\]</span> for a fixed integer <span class="math inline">\(d\)</span> called the binary <strong>precision</strong>.<sup>1</sup></p>
+</div>
+</div>
+</div>
+</div>
+<aside><ol class="aside-footnotes"><li id="fn2"><p>This definition is simpler than how numbers are truly represented in the computer. This will be our working definition for class, but to give you a small sense of how things are more complex in reality, we’ll dig a bit into the IEEE standards.</p></li></ol></aside></section>
+<section class="slide level2">
+
+<p>Note that we may rewrite <span class="math inline">\(f = 2^{-d} \sum_{i=1}^d b_i 2^{d-i} = 2^{-d} z\)</span> where <span class="math inline">\(z \in \{0, 1, \cdots, 2^d - 1\}.\)</span></p>
+<div class="fragment">
+<div class="callout callout-caution no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Exercise:</strong></p>
+</div>
+<div class="callout-content">
+<p>How many floating-point numbers are there in <span class="math inline">\([2^n, 2^{n+1})\)</span>?</p>
+</div>
+</div>
+</div>
+<details>
+<summary>
+Answer:
+</summary>
+There are <span class="math inline">\(2^d\)</span> floating-point numbers in this interval!
+</details>
+</div>
+<div class="fragment">
+<div class="callout callout-tip no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Note:</strong></p>
+</div>
+<div class="callout-content">
+<p>As <span class="math inline">\(n\)</span> grows, the gap between consecutive floating-point numbers also grows!</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Definition: Machine epsilon</strong></p>
+</div>
+<div class="callout-content">
+<p>For a floating-point set with <span class="math inline">\(d\)</span> binary digits of precision, <strong>machine epsilon</strong> (or <em>machine precision</em>) is <span class="math inline">\(\epsilon_{\text{mach}} = 2^{-d}.\)</span></p>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p>Note that this is the distance between <span class="math inline">\(1\)</span> and the smallest element of <span class="math inline">\(\mathbb{F}\)</span> greater than <span class="math inline">\(1\)</span>, <span class="math inline">\(1 + 2^{-d}\)</span>.</p>
+</div>
+<div class="fragment">
+<p> It will be useful to be able to represent which element of <span class="math inline">\(\mathbb{F}\)</span> represents a given real number. </p>
+</div>
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Definition: Floating-point rounding function</strong></p>
+</div>
+<div class="callout-content">
+<p>Given a real number <span class="math inline">\(x\)</span>, the rounding function <span class="math inline">\(\text{fl}(x)\)</span> outputs the element of <span class="math inline">\(\mathbb{F}\)</span> nearest to <span class="math inline">\(x\)</span>.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p>The distance between consecutive floating-point numbers in <span class="math inline">\([2^n, 2^{n+1})\)</span> is <span class="math display">\[2^n\epsilon_{\text{mach}} = 2^{n-d}.\]</span> Thus, for real <span class="math inline">\(x \in [2^n, 2^{n+1})\)</span> we have the bound <span class="math display">\[|\text{fl}(x) - x| \le \frac12 2^n \epsilon_{\text{mach}} \le \frac12 \epsilon_{\text{mach}} |x|.\]</span></p>
+</div>
+</section>
+<section class="slide level2">
+
+</section></section>
+<section>
+<section id="precision-and-accuracy" class="title-slide slide level1 center">
+<h1>Precision and Accuracy</h1>
+
+</section>
+<section id="accuracy" class="slide level2">
+<h2>Accuracy</h2>
+<p>The accuracy of an approximation <span class="math inline">\(\tilde{x}\)</span> to the number of interest <span class="math inline">\(x\)</span>. The floating-point number approximation <span class="math inline">\(\tilde{x}\)</span> is represented using <span class="math inline">\(d\)</span> binary digits, but not all of these binary digits may accurately represent (agree) with the number of interest <span class="math inline">\(x\)</span> (which we may be unable to represent exactly as a floating-point number).</p>
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Definition:</strong></p>
+</div>
+<div class="callout-content">
+<p>The <strong>absolute accuracy</strong> of <span class="math inline">\(\tilde{x}\)</span> is <span class="math inline">\(|\tilde{x} - x|\)</span>.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Definition:</strong></p>
+</div>
+<div class="callout-content">
+<p>The <strong>relative accuracy</strong> of <span class="math inline">\(\tilde{x}\)</span> is <span class="math inline">\(\frac{|\tilde{x} - x|}{|x|}\)</span>.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p> The number of accurate digits is <span class="math display">\[-\log_{10} \frac{|\tilde{x} - x|}{|x|}.\]</span></p>
+</div>
+</section>
+<section id="example-approximation-to-pi" class="slide level2">
+<h2>Example: Approximation to <span class="math inline">\(\pi\)</span></h2>
+<div id="390ab25a" class="cell" data-execution_count="1">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href=""></a><span class="pp">@show</span> p <span class="op">=</span> <span class="fl">22</span><span class="op">/</span><span class="fl">7</span>;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>p = 22 / 7 = 3.142857142857143</code></pre>
+</div>
+</div>
+<div class="fragment">
+<div id="9c14e539" class="cell" data-execution_count="2">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href=""></a><span class="pp">@show</span> <span class="fu">float</span>(<span class="cn">π</span>);</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>float(π) = 3.141592653589793</code></pre>
+</div>
+</div>
+</div>
+<div class="fragment">
+<div id="4cd03f94" class="cell" data-execution_count="3">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href=""></a>acc <span class="op">=</span> <span class="fu">abs</span>(p <span class="op">-</span> <span class="cn">π</span>)</span>
+<span id="cb5-2"><a href=""></a><span class="fu">println</span>(<span class="st">"absolute accuracy = </span><span class="sc">$</span>acc<span class="st">"</span>)</span>
+<span id="cb5-3"><a href=""></a><span class="fu">println</span>(<span class="st">"relative accuracy = </span><span class="sc">$</span>(acc<span class="op">/</span><span class="cn">π</span>)<span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>absolute accuracy = 0.0012644892673496777
+relative accuracy = 0.0004024994347707008</code></pre>
+</div>
+</div>
+</div>
+<div class="fragment">
+<div id="d5052ebc" class="cell" data-execution_count="4">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><a href=""></a><span class="fu">println</span>(<span class="st">"Number of accurate digits = </span><span class="sc">$</span>(<span class="fu">floor</span>(<span class="fu">-log10</span>(acc<span class="op">/</span><span class="cn">π</span>)))<span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Number of accurate digits = 3.0</code></pre>
+</div>
+</div>
+</div>
+</section>
+<section id="precision" class="slide level2">
+<h2>Precision</h2>
+<p>The <strong>precision</strong> of a floating-point number is always <span class="math inline">\(d\)</span> binary digits. This is a measure between floating-point numbers.</p>
+</section></section>
+<section>
+<section id="ieee-754-standard" class="title-slide slide level1 center">
+<h1>IEEE 754 Standard</h1>
+
+</section>
+<section id="ieee-double-and-single-precision" class="slide level2">
+<h2>IEEE double and single precision</h2>
+<p>In 1985, the IEEE set the standard (IEEE 754) for binary and decimal floating point numbers and algorithms for rounding arithmetic operations, which are (generally) followed by all major computer manufacturers.</p>
+<div>
+
+</div>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="figs/IEEE_single.png" height="97"></p>
+<figcaption>IEEE single precision</figcaption>
+</figure>
+</div>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="figs/IEEE_double.png" height="97"></p>
+<figcaption>IEEE double precision</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div class="callout callout-caution no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Exercise:</strong></p>
+</div>
+<div class="callout-content">
+<ol type="1">
+<li class="fragment">How many bits would be necessary to represent sign information for a complex number <span class="math inline">\(a + bi\)</span>?</li>
+<li class="fragment">How many distinct exponents can be represented in double precision and which exponents are they?</li>
+</ol>
+</div>
+</div>
+</div>
+<details>
+<summary>
+Answer:
+</summary>
+<ol type="1">
+<li class="fragment">We would need two bits to keep track of the sign of <span class="math inline">\(a\)</span> and the sign of <span class="math inline">\(b\)</span>.<br>
+</li>
+<li class="fragment">In double precision, there are <span class="math inline">\(2^{11}\)</span> distinct exponents, but we don’t know which numbers they are!
+</li></ol></details>
+
+</section>
+<section class="slide level2">
+
+<p>The IEEE double precision floating point number has value <span class="math display">\[(-1)^s 2^{c - 1023} (1 + f),\]</span><br>
+where</p>
+<ul>
+<li class="fragment">sign <span class="math inline">\(s\)</span> is the binary number <span class="math inline">\(0\)</span> or <span class="math inline">\(1\)</span></li>
+<li class="fragment">characteristic <span class="math inline">\(c\)</span> is the binary number given by its bits (in the usual way) and 1023 is subtracted to yield the exponent</li>
+<li class="fragment">mantissa <span class="math inline">\(f\)</span> is the binary fraction given by its bits (following the “decimal point”)</li>
+</ul>
+<div class="fragment">
+<div class="callout callout-tip no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Note:</strong></p>
+</div>
+<div class="callout-content">
+<p>In double precision, <span class="math display">\[\epsilon_{\text{mach}} = 2^{-52} \approx 2.2 \times 10^{-16}.\]</span></p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<div class="callout callout-caution no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Exercise:</strong></p>
+</div>
+<div class="callout-content">
+<p>Which real numbers are represented by the IEEE double precision number <span class="math inline">\(0 \; 10000000001 \; 10\cdots0\)</span>?</p>
+</div>
+</div>
+</div>
+<details>
+<summary>
+Answer:
+</summary>
+<ol type="1">
+<li class="fragment">First, the exact decimal number this represents has <span class="math display">\[c = 1 \times 2^{10} + 0 \times 2^{9} + \cdots + 0 \times 2^1 + 1 \times 2^0 = 1024 + 1 = 1025,\]</span> <span class="math display">\[f = 1 \times 2^{-1} + 0 \times 2^{-2} + \cdots + 0 \times 2^{-52},\]</span> and so it is <span class="math inline">\((-1)^0 2^{1025 - 1023} (1 + 1/2) = 6.\)</span></li>
+<li class="fragment">The next smallest representable number is <span class="math display">\[(-1)^0 2^{1025 - 1023} (1 + 1/2 - (1/2)^{-52}) = 6 - (1/2)^{50}.\]</span></li>
+<li class="fragment">The next largest representable number is <span class="math inline">\(6 + (1/2)^{50}.\)</span></li>
+<li class="fragment">Thus, the interval of real numbers closest to this machine number is <span class="math display">\[(6 - (1/2)^{51}, 6 + (1/2)^{51}).\]</span></li>
+</ol>
+</details>
+</section>
+<section class="slide level2">
+
+<p>The Julia command for double precision <span class="math inline">\(\epsilon_{\text{mach}}\)</span> is <code>eps()</code>. Recall that this value is proportional to the spacing between adjacent floating-point values at <code>1.0</code>.</p>
+<div id="6c62ba96" class="cell" data-execution_count="5">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb9-1"><a href=""></a><span class="pp">@show</span> <span class="fu">eps</span>();</span>
+<span id="cb9-2"><a href=""></a><span class="pp">@show</span> <span class="fu">eps</span>(<span class="fl">1.0</span>);</span>
+<span id="cb9-3"><a href=""></a><span class="pp">@show</span> <span class="fu">log2</span>(<span class="fu">eps</span>());</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>eps() = 2.220446049250313e-16
+eps(1.0) = 2.220446049250313e-16
+log2(eps()) = -52.0</code></pre>
+</div>
+</div>
+<div class="fragment">
+<p>We can get values proportional to the spacing at other values by passing them as input to <code>eps()</code>.</p>
+<div id="1fcdd0a0" class="cell" data-execution_count="6">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb11-1"><a href=""></a><span class="pp">@show</span> <span class="fu">eps</span>(<span class="fl">1.618</span>);</span>
+<span id="cb11-2"><a href=""></a><span class="pp">@show</span> <span class="fu">eps</span>(<span class="fl">161.8</span>);</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>eps(1.618) = 2.220446049250313e-16
+eps(161.8) = 2.842170943040401e-14</code></pre>
+</div>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<p>We can also see the next floating-point number larger than a given value using <code>nextfloat()</code>.</p>
+<div id="33816280" class="cell" data-execution_count="7">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb13-1"><a href=""></a><span class="pp">@show</span> <span class="fu">nextfloat</span>(<span class="fl">161.8</span>);</span>
+<span id="cb13-2"><a href=""></a><span class="pp">@show</span> <span class="fu">nextfloat</span>(<span class="fl">161.8</span>) <span class="op">-</span> <span class="fl">161.8</span>;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>nextfloat(161.8) = 161.80000000000004
+nextfloat(161.8) - 161.8 = 2.842170943040401e-14</code></pre>
+</div>
+</div>
+<div class="fragment">
+<p>The range<sup>1</sup> of positive values representable in double precision is</p>
+<div id="81c124ac" class="cell" data-execution_count="8">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb15-1"><a href=""></a><span class="pp">@show</span> <span class="fu">floatmin</span>(), <span class="fu">floatmax</span>();</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>(floatmin(), floatmax()) = (2.2250738585072014e-308, 1.7976931348623157e308)</code></pre>
+</div>
+</div>
+</div>
+<aside><ol class="aside-footnotes"><li id="fn3"><p>A common mistake made is to think that <span class="math inline">\(\epsilon_{\text{mach}}\)</span> is the smallest magnitude floating-point number. It is only the smallest <em>relative to <code>1.0</code></em>. The exponent limits the scaling of values – the distance between floating-point numbers (governed by the mantissa) is smallest when the values themselves (governed by the exponent) are smallest.</p></li></ol></aside></section>
+<section class="slide level2">
+
+<p>Like other languages, Julia has different types, which is very important for numerical computing (as we’ll see in more detail later)!</p>
+<div id="f97365b1" class="cell" data-execution_count="9">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb17-1"><a href=""></a><span class="pp">@show</span> <span class="fu">typeof</span>(<span class="fl">1</span>);</span>
+<span id="cb17-2"><a href=""></a><span class="pp">@show</span> <span class="fu">typeof</span>(<span class="fl">1.0</span>);</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>typeof(1) = Int64
+typeof(1.0) = Float64</code></pre>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<p>The standard floating-point representation is <code>Float64</code>, which is IEEE double precision using 64 bits. </p>
+<div id="cc54d7f0" class="cell" data-execution_count="10">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb19-1"><a href=""></a>[<span class="fu">bitstring</span>(<span class="fl">1.0</span>), <span class="fu">bitstring</span>(<span class="op">-</span><span class="fl">1.0</span>), <span class="fu">bitstring</span>(<span class="fl">2.0</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<pre><code>3-element Vector{String}:
+ "0011111111110000000000000000000000000000000000000000000000000000"
+ "1011111111110000000000000000000000000000000000000000000000000000"
+ "0100000000000000000000000000000000000000000000000000000000000000"</code></pre>
+</div>
+</div>
+<div class="callout callout-caution no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Exercise: What do you notice?</strong></p>
+</div>
+<div class="callout-content">
+<p>What do you notice about the bitstrings above?</p>
+</div>
+</div>
+</div>
+<details>
+<summary>
+Answer:
+</summary>
+<ul>
+<li class="fragment">The first bit gives the sign of the number.</li>
+<li class="fragment">The next 11 bits determine the exponent (remember to subtract 1023).</li>
+<li class="fragment">The last 52 bits determine the mantissa (binary fraction).</li>
+</ul>
+</details>
+</section>
+<section class="slide level2">
+
+<p>Note that the representation of <code>Int64</code> is different!</p>
+<div id="be74a620" class="cell" data-execution_count="11">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb21-1"><a href=""></a>[<span class="fu">bitstring</span>(<span class="fl">1</span>), <span class="fu">bitstring</span>(<span class="op">-</span><span class="fl">1</span>), <span class="fu">bitstring</span>(<span class="fl">2</span>), <span class="fu">bitstring</span>(<span class="op">-</span><span class="fl">2</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<pre><code>4-element Vector{String}:
+ "0000000000000000000000000000000000000000000000000000000000000001"
+ "1111111111111111111111111111111111111111111111111111111111111111"
+ "0000000000000000000000000000000000000000000000000000000000000010"
+ "1111111111111111111111111111111111111111111111111111111111111110"</code></pre>
+</div>
+</div>
+<div class="fragment">
+<p>Julia can also give the sign, exponent, and significand in decimal. </p>
+<div id="2639b3da" class="cell" data-execution_count="12">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb23-1"><a href=""></a>x <span class="op">=</span> <span class="op">-</span><span class="fl">1.0</span></span>
+<span id="cb23-2"><a href=""></a><span class="pp">@show</span> <span class="fu">sign</span>(x), <span class="fu">exponent</span>(x), <span class="fu">significand</span>(x);</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>(sign(x), exponent(x), significand(x)) = (-1.0, 0, -1.0)</code></pre>
+</div>
+</div>
+<div id="c7927044" class="cell" data-execution_count="13">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb25-1"><a href=""></a>x <span class="op">=</span> <span class="fl">0.125</span></span>
+<span id="cb25-2"><a href=""></a><span class="pp">@show</span> <span class="fu">sign</span>(x), <span class="fu">exponent</span>(x), <span class="fu">significand</span>(x);</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>(sign(x), exponent(x), significand(x)) = (1.0, -3, 1.0)</code></pre>
+</div>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<p>The definition of floating-point numbers <span class="math inline">\(\mathbb{F}\)</span> given on slide 5 did not put limits on the exponent, but in double precision we have <span class="math inline">\(-1022 \le n \le 1023\)</span>.</p>
+<ul>
+<li class="fragment">Values larger than <span class="math inline">\(2^{1024}\)</span> (either input or computed) are said to <em>overflow</em> and will be instead represented by the value <code>Inf</code> in memory.<br>
+</li>
+<li class="fragment">Values smaller than <span class="math inline">\(2^{-1022}\)</span> are said to <em>underflow</em> to zero.</li>
+</ul>
+<div class="fragment">
+<p>You should also be aware of one more double-precision value: <code>NaN</code>, which stand for <em>not a number</em>. This value is adopted after undefined arithmetic operations (like division by zero or division by values in underflow).</p>
+</div>
+</section></section>
+<section>
+<section id="floating-point-arithmetic" class="title-slide slide level1 center">
+<h1>Floating-point Arithmetic</h1>
+
+</section>
+<section id="computer-arithmetic" class="slide level2">
+<h2>Computer arithmetic</h2>
+<p>In a computer, arithmetic operations operate on floating-point numbers and return floating-point results. Perhaps the most important thing for you to know is that while operations <span class="math inline">\(+, -, \times, /\)</span> produce <em>exact</em> results, the machine-analog operations, which we will denote <span class="math inline">\(\oplus, \ominus, \otimes, \oslash\)</span>, are not guaranteed to do so.</p>
+<div class="fragment">
+<p>Recall that there is no double-precision number between <span class="math inline">\(1\)</span> and <span class="math inline">\(1 + \epsilon_{\text{mach}}\)</span>. </p>
+<div id="6f59750e" class="cell" data-execution_count="14">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb27-1"><a href=""></a><span class="cn">e</span> <span class="op">=</span> <span class="fu">eps</span>()<span class="op">/</span><span class="fl">2</span></span>
+<span id="cb27-2"><a href=""></a>(<span class="fl">1.0</span> <span class="op">+</span> <span class="cn">e</span>) <span class="op">-</span> <span class="fl">1.0</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<pre><code>0.0</code></pre>
+</div>
+</div>
+</div>
+<div class="fragment">
+<div id="eb36252f" class="cell" data-execution_count="15">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb29-1"><a href=""></a><span class="fl">1.0</span> <span class="op">+</span> (<span class="cn">e</span> <span class="op">-</span> <span class="fl">1.0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<pre><code>1.1102230246251565e-16</code></pre>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p>Computer addition is not associative! </p>
+</div>
+</section>
+<section class="slide level2">
+
+<div class="callout callout-warning no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Fact</strong></p>
+</div>
+<div class="callout-content">
+<p>Two mathematically equivalent results need not be equal when computed in floating point arithmetic. One would hope that they be relatively close together.</p>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p>An important job of one working in scientific computation is to ensure that results are computed in such a way that they are close together!</p>
+</div>
+</section></section>
+<section>
+<section id="problems-and-conditioning" class="title-slide slide level1 center">
+<h1>Problems and Conditioning</h1>
+
+</section>
+<section id="example" class="slide level2">
+<h2>Example</h2>
+<p>Think about the problem of subtracting <span class="math inline">\(1\)</span> from a number <span class="math inline">\(x\)</span>; this result is given by the function <span class="math inline">\(f(x) = x - 1\)</span>. On a computer, <span class="math inline">\(x\)</span> is represented by <span class="math inline">\(\text{fl}(x)\)</span> and we have <span class="math inline">\(\text{fl}(x) = x(1 + \epsilon)\)</span> for some <span class="math inline">\(|\epsilon| &lt; \epsilon_{\text{mach}}/2\)</span>. </p>
+<div class="fragment">
+<p>Even if the floating-point arithmetic addition is exact, so <span class="math inline">\(x \ominus 1 = x(1 + \epsilon) - 1\)</span>, the relative error in this result is <span class="math display">\[\frac{|(x + \epsilon x - 1) - (x-1)|}{|x-1|} = \frac{|\epsilon x|}{|x-1|}.\]</span> This relative error can be unboundedly poor by taking <span class="math inline">\(x\)</span> very close to <span class="math inline">\(1\)</span>.</p>
+</div>
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Definition:</strong></p>
+</div>
+<div class="callout-content">
+<p><strong>Subtractive cancellation</strong> is a loss of accuracy that occurs when two numbers add or subtract to give a result that is much smaller in magnitude than the inputs. It is one of the most common mechanisms for causing dramatic growth of errors in floating-point computations!</p>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p>Subtractive cancellation renders some of the digits in our floating-point representations essentially meaningless, since they are zeroed in our calculation. </p>
+</div>
+</section>
+<section id="problems" class="slide level2">
+<h2>Problems</h2>
+<p>Consider a problem – this is a calculation or task for which you might write an algorithm. We’ll represent a problem as a function <span class="math inline">\(f\)</span> that maps a real data value <span class="math inline">\(x\)</span> to a real result <span class="math inline">\(f(x)\)</span>, and denote this <span class="math inline">\(f: \mathbb{R} \rightarrow \mathbb{R}\)</span>. Everything here denotes exact calculations – data <span class="math inline">\(x\)</span> is represented exactly and the exact result <span class="math inline">\(f(x)\)</span> is computed exactly.</p>
+<div class="fragment">
+<p>In a computer, the problem <span class="math inline">\(f\)</span> will be approximated in floating-point. Here the data <span class="math inline">\(x\)</span> is represented as an <em>input</em> <span class="math inline">\(\tilde{x} = \text{fl}(x)\)</span>.</p>
+</div>
+<div class="fragment">
+<p>Realistically the calculations required to solve the problem <span class="math inline">\(f\)</span> will also be inexact and so we might instead solve a different problem <span class="math inline">\(\tilde{f}\)</span>. </p>
+</div>
+</section>
+<section id="conditioning" class="slide level2">
+<h2>Conditioning</h2>
+<p>Setting aside the sources of error in the problem calculations, we’ll consider the ratio of the relative errors of the result and the data, <span class="math display">\[\frac{\frac{|f(x) - f(\tilde{x})|}{|f(x)|}}{\frac{|x - \tilde{x}|}{|x|}}.\]</span> </p>
+<div class="fragment">
+<div class="callout callout-caution no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Exercise: Rewrite this expression</strong></p>
+</div>
+<div class="callout-content">
+<p>Show that for the floating-point approximation to <span class="math inline">\(x\)</span>, <span class="math inline">\(\tilde{x}\)</span>, for some <span class="math inline">\(|\epsilon| \le \epsilon_{\text{mach}}/2,\)</span> this ratio is equal to <span class="math display">\[\frac{|f(x) - f(x + \epsilon x)|}{|\epsilon f(x)|}.\]</span></p>
+</div>
+</div>
+</div>
+<details>
+<summary>
+Answer:
+</summary>
+We have <span class="math inline">\(\tilde{x} = x(1 + \epsilon)\)</span> and thus <span class="math display">\[\frac{|f(x) - f(\tilde{x})||x|}{|f(x)||x -\tilde{x}|} = \frac{|f(x) - f(x+\epsilon x)||x|}{|f(x)||\epsilon x|} = \frac{|f(x) - f(x + \epsilon x)|}{|\epsilon f(x)|}.\]</span>
+</details>
+</div>
+</section>
+<section id="condition-number" class="slide level2">
+<h2>Condition Number</h2>
+<p>Now, think about what would happen in a perfect computer where the floating-point representation is perfect, <span class="math inline">\(\epsilon \rightarrow 0\)</span>.</p>
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Definition: Condition number for scalar function</strong></p>
+</div>
+<div class="callout-content">
+<p>The relative <strong>condition number</strong> of a scalar function <span class="math inline">\(f(x)\)</span> is <span class="math display">\[\kappa_f(x) = \lim_{\epsilon \rightarrow 0} \frac{|f(x) - f(x + \epsilon x)|}{|\epsilon f(x)|}.\]</span></p>
+</div>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-caution no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Exercise: Rewrite this expression</strong></p>
+</div>
+<div class="callout-content">
+<p>Assuming that <span class="math inline">\(f\)</span> has a continuous derivative <span class="math inline">\(f'\)</span>, show that <span class="math inline">\(\kappa_f(x) = \left| \frac{x f'(x)}{f(x)} \right|.\)</span></p>
+</div>
+</div>
+</div>
+<details>
+<summary>
+Answer:
+</summary>
+Using the definition of the derivative, we have <span class="math display">\[\kappa_f(x) = \lim_{\epsilon \rightarrow 0} \left| \frac{f(x + \epsilon x) - f(x)}{\epsilon f(x)} \right| = \left| \frac{f(x + \epsilon x) - f(x)}{\epsilon x} \right| \left| \frac{x}{f(x)} \right| = \left| \frac{x f'(x)}{f(x)} \right|.\]</span>
+</details>
+</div>
+</section>
+<section class="slide level2">
+
+<p>Using the previous exercise, we see that the condition number for the problem of subtracting a constant number <span class="math inline">\(c\)</span> from data <span class="math inline">\(x\)</span>, <span class="math inline">\(f(x) = x - c\)</span>, has condition number <span class="math display">\[\kappa_f(x) = \left| \frac{(x)(1)}{x-c} \right| = \frac{|x|}{|x-c|}\]</span> which is large when <span class="math inline">\(|x| \gg |x-c|\)</span>.</p>
+<div class="fragment">
+<div class="callout callout-tip no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Note:</strong></p>
+</div>
+<div class="callout-content">
+<p>This is indicative of the risk of subtractive cancellation when <span class="math inline">\(x\)</span> is nearby to <span class="math inline">\(c\)</span>!</p>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-caution no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Exercise: What is the condition number?</strong></p>
+</div>
+<div class="callout-content">
+<p>Calculate the condition number of <span class="math inline">\(g(x) = cx\)</span>.</p>
+</div>
+</div>
+</div>
+<details>
+<summary>
+Answer:
+</summary>
+We have <span class="math display">\[\kappa_g(x) = \left| \frac{(x)(c)}{cx} \right| = 1.\]</span>
+</details>
+</div>
+<div class="fragment">
+<p>Multiplication has the same relative error in the result as in the data!</p>
+<!--
+Some text
+[in HTML.]{.content-visible when-format="revealjs" when-format="pptx"}
+[in PDF.]{.content-visible when-format="pdf"}
+-->
+</div>
+</section>
+<section id="estimating-error" class="slide level2">
+<h2>Estimating Error</h2>
+<p>If <span class="math inline">\(|\epsilon|\)</span> is small, we expect <span class="math display">\[\left| \frac{f(x + \epsilon x) - f(x)}{f(x)} \right| \approx \kappa_f(x) |\epsilon|.\]</span> When the data <span class="math inline">\(x\)</span> is perturbed by a small amount <span class="math inline">\(\epsilon\)</span>, the relative error in the result is magnified by a factor of <span class="math inline">\(\kappa_f(x)\)</span>.</p>
+<div class="fragment">
+<div class="callout callout-warning no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Fact:</strong></p>
+</div>
+<div class="callout-content">
+<p>If <span class="math inline">\(\kappa_f(x) \approx 10^d\)</span>, then we expect to lose up to <span class="math inline">\(d\)</span> decimal digits of accuracy in computing <span class="math inline">\(f(x)\)</span> from <span class="math inline">\(x\)</span>.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p>When the condition number of a problem is large, we cannot expect errors in the result to remain comparable in size to roundoff error. This type of problem is called <strong>ill-conditioned</strong>. We say a problem <span class="math inline">\(f\)</span> is ill-conditioned when <span class="math inline">\(\kappa_f(x) \gg 1\)</span>. </p>
+</div>
+<div class="fragment">
+<p>Some problems, such as <span class="math inline">\(f(x) = \sqrt{x}\)</span>, can have a condition number less than 1. However, every result in floating-point arithmetic is subject to rounding error at the relative level of <span class="math inline">\(\epsilon_{\text{mach}}\)</span>, so in practice, <span class="math inline">\(\kappa_f(x) &lt; 1\)</span> is no different from <span class="math inline">\(\kappa_f(x) = 1\)</span>.</p>
+</div>
+</section>
+<section id="case-study-conditioning" class="slide level2">
+<h2>Case Study: Conditioning</h2>
+<p>We’re going to consider the problem of calculating roots of a quadratic polynomial; that is finding values <span class="math inline">\(t\)</span> such that <span class="math inline">\(at^2 + bt + c = 0\)</span>. We’ll start first by considering the <em>conditioning</em> of the problem, which we might write <span class="math inline">\(f([a,b,c]) = [r_1,r_2]\)</span> for coefficients <span class="math inline">\(a, b, c\)</span> and roots <span class="math inline">\(r_1, r_2\)</span>.</p>
+<div class="fragment">
+<p>Since we’ve been thinking of conditioning for problems which are scalar functions, let’s think only of how <span class="math inline">\(r_1\)</span> changes as we vary <span class="math inline">\(a\)</span> and hold <span class="math inline">\(b\)</span> and <span class="math inline">\(c\)</span> fixed, that is <span class="math inline">\(f(a) = r_1\)</span>.</p>
+</div>
+<div class="fragment">
+<p>Now, noting that <span class="math inline">\(a r_1^2 + b r_1 + c = 0\)</span>, we may differentiate with respect to <span class="math inline">\(a\)</span> and get <span class="math display">\[r_1^2 + 2 a r_1 \frac{d r_1}{d a} + b \frac{d r_1}{d a} = 0.\]</span></p>
+</div>
+<div class="fragment">
+<p>Solving this for the derivative, we have <span class="math inline">\(\frac{d r_1}{d a} = \frac{-r_1^2}{2ar_1 + b},\)</span> and thus, the conditioning is <span class="math display">\[\kappa_f(a) = \left|\frac{a}{r_1} \frac{d r_1}{d a}\right| = \left| \frac{ar_1}{2ar_1 + b}\right| = \left| \frac{r_1}{r_1 - r_2}\right|.\]</span></p>
+</div>
+<div class="fragment">
+<p>Thus, the condition number of a root can be arbitrarily large!</p>
+</div>
+</section>
+<section class="slide level2">
+
+<div class="callout callout-warning no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Fact:</strong></p>
+</div>
+<div class="callout-content">
+<p>Roots of polynomials are ill-conditioned with respect to changes in the polynomial coefficients when the roots are much closer to one another than the origin.</p>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p>The polynomial <span class="math inline">\(p(x) = \frac13 (x-1)(x-1-\epsilon)\)</span> has roots <span class="math inline">\(1\)</span> and <span class="math inline">\(1+\epsilon\)</span>. For small values of <span class="math inline">\(\epsilon,\)</span> the roots are ill-conditioned.</p>
+<div id="93fcf0e1" class="cell" data-execution_count="1">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb31-1"><a href=""></a>ϵ <span class="op">=</span> <span class="fl">1e-6</span></span>
+<span id="cb31-2"><a href=""></a>a,b,c <span class="op">=</span> <span class="fl">1</span><span class="op">/</span><span class="fl">3</span>, (<span class="op">-</span><span class="fl">2</span><span class="op">-</span>ϵ)<span class="op">/</span><span class="fl">3</span>, (<span class="fl">1</span><span class="op">+</span>ϵ)<span class="op">/</span><span class="fl">3</span>;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</div>
+<div class="fragment">
+<p>We can use the quadratic formula to compute the roots (this is an algorithm)!</p>
+<div id="32ae2d73" class="cell" data-execution_count="2">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb32-1"><a href=""></a>d <span class="op">=</span> <span class="fu">sqrt</span>(b<span class="op">^</span><span class="fl">2</span> <span class="op">-</span> <span class="fl">4</span>a<span class="op">*</span>c)</span>
+<span id="cb32-2"><a href=""></a>r₁ <span class="op">=</span> (<span class="op">-</span>b<span class="op">-</span>d)<span class="op">/</span>(<span class="fl">2</span>a)</span>
+<span id="cb32-3"><a href=""></a>r₂ <span class="op">=</span> (<span class="op">-</span>b<span class="op">+</span>d)<span class="op">/</span>(<span class="fl">2</span>a)</span>
+<span id="cb32-4"><a href=""></a>(r₁,r₂)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<pre><code>(0.9999999998251499, 1.0000010001748503)</code></pre>
+</div>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<p> Let’s now look at the relative error in <span class="math inline">\(r_1\)</span>!</p>
+<div id="819cae6b" class="cell" data-execution_count="3">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb34-1"><a href=""></a><span class="fu">abs</span>(<span class="fu">r₂-</span>(<span class="fl">1</span><span class="op">+</span>ϵ))<span class="op">/</span>(<span class="fl">1</span><span class="op">+</span>ϵ)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<pre><code>1.748501815656639e-10</code></pre>
+</div>
+</div>
+<div class="fragment">
+<p>Since the condition number is proportional to <span class="math inline">\(1/2\epsilon\)</span>, we estimate the roundoff in the data can grow in the result to be approximately <span class="math inline">\(\epsilon_{\text{mach}}/2\epsilon\)</span>.</p>
+<!--
+[verbose test]{.content-hidden when-format="revealjs" when-format="pptx"}
+
+::: {.callout-caution icon=false}
+## Exercise: 
+
+:::
+
+<details><summary>Answer:</summary> </details>
+
+
+::: {.callout-note icon=false}
+## Definition: 
+ 
+:::
+
+
+::: {.callout-tip icon=false}
+## Note: 
+ 
+:::
+-->
+<div id="4fdac803" class="cell" data-execution_count="4">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb36-1"><a href=""></a><span class="fu">eps</span>()<span class="op">/</span><span class="fl">2</span>ϵ</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<pre><code>1.1102230246251565e-10</code></pre>
+</div>
+</div>
+
+</div>
+</section></section>
+
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<p><img src="figs/hmc.png" class="slide-logo"></p>
+<div class="footer footer-default">
+
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="Lecture1_files/libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="Lecture1_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="Lecture1_files/libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="Lecture1_files/libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="Lecture1_files/libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="Lecture1_files/libs/revealjs/plugin/reveal-chalkboard/plugin.js"></script>
+  <script src="Lecture1_files/libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="Lecture1_files/libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="Lecture1_files/libs/revealjs/plugin/search/search.js"></script>
+  <script src="Lecture1_files/libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="Lecture1_files/libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': true,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleChalkboard(event)\"><kbd>b</kbd> Toggle Chalkboard</a></li>\n<li class=\"slide-tool-item\" data-item=\"6\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleNotesCanvas(event)\"><kbd>c</kbd> Toggle Notes Canvas</a></li>\n<li class=\"slide-tool-item\" data-item=\"7\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.downloadDrawings(event)\"><kbd>d</kbd> Download Drawings</a></li>\n<li class=\"slide-tool-item\" data-item=\"8\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'chalkboard': {"buttons":false},
+'smaller': true,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'none',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, RevealChalkboard, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    <script id="quarto-html-after-body" type="application/javascript">
+    window.document.addEventListener("DOMContentLoaded", function (event) {
+      const toggleBodyColorMode = (bsSheetEl) => {
+        const mode = bsSheetEl.getAttribute("data-mode");
+        const bodyEl = window.document.querySelector("body");
+        if (mode === "dark") {
+          bodyEl.classList.add("quarto-dark");
+          bodyEl.classList.remove("quarto-light");
+        } else {
+          bodyEl.classList.add("quarto-light");
+          bodyEl.classList.remove("quarto-dark");
+        }
+      }
+      const toggleBodyColorPrimary = () => {
+        const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+        if (bsSheetEl) {
+          toggleBodyColorMode(bsSheetEl);
+        }
+      }
+      toggleBodyColorPrimary();  
+      const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+      tabsets.forEach(function(tabset) {
+        const tabby = new Tabby('#' + tabset.id);
+      });
+      const isCodeAnnotation = (el) => {
+        for (const clz of el.classList) {
+          if (clz.startsWith('code-annotation-')) {                     
+            return true;
+          }
+        }
+        return false;
+      }
+      const onCopySuccess = function(e) {
+        // button target
+        const button = e.trigger;
+        // don't keep focus
+        button.blur();
+        // flash "checked"
+        button.classList.add('code-copy-button-checked');
+        var currentTitle = button.getAttribute("title");
+        button.setAttribute("title", "Copied!");
+        let tooltip;
+        if (window.bootstrap) {
+          button.setAttribute("data-bs-toggle", "tooltip");
+          button.setAttribute("data-bs-placement", "left");
+          button.setAttribute("data-bs-title", "Copied!");
+          tooltip = new bootstrap.Tooltip(button, 
+            { trigger: "manual", 
+              customClass: "code-copy-button-tooltip",
+              offset: [0, -8]});
+          tooltip.show();    
+        }
+        setTimeout(function() {
+          if (tooltip) {
+            tooltip.hide();
+            button.removeAttribute("data-bs-title");
+            button.removeAttribute("data-bs-toggle");
+            button.removeAttribute("data-bs-placement");
+          }
+          button.setAttribute("title", currentTitle);
+          button.classList.remove('code-copy-button-checked');
+        }, 1000);
+        // clear code selection
+        e.clearSelection();
+      }
+      const getTextToCopy = function(trigger) {
+          const codeEl = trigger.previousElementSibling.cloneNode(true);
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
+            }
+          }
+          return codeEl.innerText;
+      }
+      const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+        text: getTextToCopy
+      });
+      clipboard.on('success', onCopySuccess);
+      if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+        const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+          text: getTextToCopy,
+          container: window.document.getElementById('quarto-embedded-source-code-modal')
+        });
+        clipboardModal.on('success', onCopySuccess);
+      }
+        var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+        var mailtoRegex = new RegExp(/^mailto:/);
+          var filterRegex = new RegExp('/' + window.location.host + '/');
+        var isInternal = (href) => {
+            return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+        }
+        // Inspect non-navigation links and adorn them if external
+     	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+        for (var i=0; i<links.length; i++) {
+          const link = links[i];
+          if (!isInternal(link.href)) {
+            // undo the damage that might have been done by quarto-nav.js in the case of
+            // links that we want to consider external
+            if (link.dataset.originalHref !== undefined) {
+              link.href = link.dataset.originalHref;
+            }
+          }
+        }
+      function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+        const config = {
+          allowHTML: true,
+          maxWidth: 500,
+          delay: 100,
+          arrow: false,
+          appendTo: function(el) {
+              return el.closest('section.slide') || el.parentElement;
+          },
+          interactive: true,
+          interactiveBorder: 10,
+          theme: 'light-border',
+          placement: 'bottom-start',
+        };
+        if (contentFn) {
+          config.content = contentFn;
+        }
+        if (onTriggerFn) {
+          config.onTrigger = onTriggerFn;
+        }
+        if (onUntriggerFn) {
+          config.onUntrigger = onUntriggerFn;
+        }
+          config['offset'] = [0,0];
+          config['maxWidth'] = 700;
+        window.tippy(el, config); 
+      }
+      const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+      for (var i=0; i<noterefs.length; i++) {
+        const ref = noterefs[i];
+        tippyHover(ref, function() {
+          // use id or data attribute instead here
+          let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+          try { href = new URL(href).hash; } catch {}
+          const id = href.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note) {
+            return note.innerHTML;
+          } else {
+            return "";
+          }
+        });
+      }
+      const findCites = (el) => {
+        const parentEl = el.parentElement;
+        if (parentEl) {
+          const cites = parentEl.dataset.cites;
+          if (cites) {
+            return {
+              el,
+              cites: cites.split(' ')
+            };
+          } else {
+            return findCites(el.parentElement)
+          }
+        } else {
+          return undefined;
+        }
+      };
+      var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+      for (var i=0; i<bibliorefs.length; i++) {
+        const ref = bibliorefs[i];
+        const citeInfo = findCites(ref);
+        if (citeInfo) {
+          tippyHover(citeInfo.el, function() {
+            var popup = window.document.createElement('div');
+            citeInfo.cites.forEach(function(cite) {
+              var citeDiv = window.document.createElement('div');
+              citeDiv.classList.add('hanging-indent');
+              citeDiv.classList.add('csl-entry');
+              var biblioDiv = window.document.getElementById('ref-' + cite);
+              if (biblioDiv) {
+                citeDiv.innerHTML = biblioDiv.innerHTML;
+              }
+              popup.appendChild(citeDiv);
+            });
+            return popup.innerHTML;
+          });
+        }
+      }
+    });
+    </script>
+    
+
+</body></html>
