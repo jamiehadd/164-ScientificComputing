@@ -597,7 +597,7 @@ nextfloat(161.8) - 161.8 = 2.842170943040401e-14</code></pre>
 <section class="slide level2">
 
 <p>Like other languages, Julia has different types, which is very important for numerical computing (as we’ll see in more detail later)!</p>
-<div id="f97365b1" class="cell" data-execution_count="9">
+<div id="f97365b1" class="cell">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb17-1"><a href=""></a><span class="pp">@show</span> <span class="fu">typeof</span>(<span class="fl">1</span>);</span>
@@ -617,7 +617,7 @@ typeof(1.0) = Float64</code></pre>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb19-1"><a href=""></a>[<span class="fu">bitstring</span>(<span class="fl">1.0</span>), <span class="fu">bitstring</span>(<span class="op">-</span><span class="fl">1.0</span>), <span class="fu">bitstring</span>(<span class="fl">2.0</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display">
+<div class="cell-output cell-output-display" data-execution_count="10">
 <pre><code>3-element Vector{String}:
  "0011111111110000000000000000000000000000000000000000000000000000"
  "1011111111110000000000000000000000000000000000000000000000000000"
@@ -653,7 +653,7 @@ Answer:
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb21-1"><a href=""></a>[<span class="fu">bitstring</span>(<span class="fl">1</span>), <span class="fu">bitstring</span>(<span class="op">-</span><span class="fl">1</span>), <span class="fu">bitstring</span>(<span class="fl">2</span>), <span class="fu">bitstring</span>(<span class="op">-</span><span class="fl">2</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display">
+<div class="cell-output cell-output-display" data-execution_count="11">
 <pre><code>4-element Vector{String}:
  "0000000000000000000000000000000000000000000000000000000000000001"
  "1111111111111111111111111111111111111111111111111111111111111111"
@@ -713,7 +713,7 @@ Answer:
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb27-1"><a href=""></a><span class="cn">e</span> <span class="op">=</span> <span class="fu">eps</span>()<span class="op">/</span><span class="fl">2</span></span>
 <span id="cb27-2"><a href=""></a>(<span class="fl">1.0</span> <span class="op">+</span> <span class="cn">e</span>) <span class="op">-</span> <span class="fl">1.0</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display">
+<div class="cell-output cell-output-display" data-execution_count="14">
 <pre><code>0.0</code></pre>
 </div>
 </div>
@@ -724,7 +724,7 @@ Answer:
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb29-1"><a href=""></a><span class="fl">1.0</span> <span class="op">+</span> (<span class="cn">e</span> <span class="op">-</span> <span class="fl">1.0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display">
+<div class="cell-output cell-output-display" data-execution_count="15">
 <pre><code>1.1102230246251565e-16</code></pre>
 </div>
 </div>
@@ -934,7 +934,7 @@ Some text
 </div>
 <div class="fragment">
 <p>The polynomial <span class="math inline">\(p(x) = \frac13 (x-1)(x-1-\epsilon)\)</span> has roots <span class="math inline">\(1\)</span> and <span class="math inline">\(1+\epsilon\)</span>. For small values of <span class="math inline">\(\epsilon,\)</span> the roots are ill-conditioned.</p>
-<div id="93fcf0e1" class="cell" data-execution_count="1">
+<div id="93fcf0e1" class="cell" data-execution_count="16">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb31-1"><a href=""></a>ϵ <span class="op">=</span> <span class="fl">1e-6</span></span>
@@ -944,7 +944,7 @@ Some text
 </div>
 <div class="fragment">
 <p>We can use the quadratic formula to compute the roots (this is an algorithm)!</p>
-<div id="32ae2d73" class="cell" data-execution_count="2">
+<div id="32ae2d73" class="cell" data-execution_count="17">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb32-1"><a href=""></a>d <span class="op">=</span> <span class="fu">sqrt</span>(b<span class="op">^</span><span class="fl">2</span> <span class="op">-</span> <span class="fl">4</span>a<span class="op">*</span>c)</span>
@@ -952,7 +952,7 @@ Some text
 <span id="cb32-3"><a href=""></a>r₂ <span class="op">=</span> (<span class="op">-</span>b<span class="op">+</span>d)<span class="op">/</span>(<span class="fl">2</span>a)</span>
 <span id="cb32-4"><a href=""></a>(r₁,r₂)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display">
+<div class="cell-output cell-output-display" data-execution_count="17">
 <pre><code>(0.9999999998251499, 1.0000010001748503)</code></pre>
 </div>
 </div>
@@ -961,12 +961,12 @@ Some text
 <section class="slide level2">
 
 <p> Let’s now look at the relative error in <span class="math inline">\(r_1\)</span>!</p>
-<div id="819cae6b" class="cell" data-execution_count="3">
+<div id="819cae6b" class="cell" data-execution_count="18">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb34-1"><a href=""></a><span class="fu">abs</span>(<span class="fu">r₂-</span>(<span class="fl">1</span><span class="op">+</span>ϵ))<span class="op">/</span>(<span class="fl">1</span><span class="op">+</span>ϵ)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display">
+<div class="cell-output cell-output-display" data-execution_count="18">
 <pre><code>1.748501815656639e-10</code></pre>
 </div>
 </div>
@@ -994,12 +994,12 @@ Some text
  
 :::
 -->
-<div id="4fdac803" class="cell" data-execution_count="4">
+<div id="4fdac803" class="cell" data-execution_count="19">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb36-1"><a href=""></a><span class="fu">eps</span>()<span class="op">/</span><span class="fl">2</span>ϵ</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display">
+<div class="cell-output cell-output-display" data-execution_count="19">
 <pre><code>1.1102230246251565e-10</code></pre>
 </div>
 </div>
