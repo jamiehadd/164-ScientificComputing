@@ -522,6 +522,200 @@ Jamie Haddock
 <h2>Vectors and matrices in Julia</h2>
 <p>Once you get the hang of vector and matrix manipulation in Julia, it tends to be fairly straightforward and intuitive. We’ll get started with some practice!</p>
 <p>Get on the server at <code>https://149-165-153-51.js2proxy.cacao.run/</code> and download our in class playground notebook using <code>wget "https://raw.githubusercontent.com/jamiehadd/164-ScientificComputing/refs/heads/main/Lecture3/Lecture3_playground.ipynb"</code>. Run the included code blocks, understand the output, and note any questions you have!</p>
+</section></section>
+<section>
+<section id="linear-systems" class="title-slide slide level1 center">
+<h1>Linear Systems</h1>
+<p>For the next couple of weeks, we will be considering the problem of solving a linear system – finding <span class="math inline">\(\mathbf{x}\)</span> such that <span class="math inline">\(\mathbf{A}\mathbf{x} = \mathbf{b}\)</span> given a square <span class="math inline">\(n \times n\)</span> matrix <span class="math inline">\(\mathbf{A}\)</span> and <span class="math inline">\(n\)</span>-vector <span class="math inline">\(\mathbf{b}\)</span>.</p>
+<div class="fragment">
+<p>If <span class="math inline">\(\mathbf{A}\)</span> is invertible then the solution to the system is <span class="math inline">\(\mathbf{x} = \mathbf{A}^{-1}\mathbf{b}\)</span> as, in this case, we have <span class="math display">\[\mathbf{A}\mathbf{x} = \mathbf{A}\mathbf{A}^{-1} \mathbf{b} = \mathbf{b}.\]</span></p>
+</div>
+</section>
+<section id="the-big-lesson" class="slide level2">
+<h2>The Big Lesson</h2>
+<p>You probably remember the process of calculating inverse matrices from Linear Algebra – challenging! It turns out calculating the inverse via numerical computation is also challenging and almost never the best tool at your disposal.</p>
+<div id="a8cae8de" class="cell" data-execution_count="60">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb16-1"><a href=""></a>A <span class="op">=</span> <span class="fu">randn</span>(<span class="fl">10000</span>,<span class="fl">10000</span>)</span>
+<span id="cb16-2"><a href=""></a>x_true <span class="op">=</span> <span class="fu">ones</span>(<span class="fl">10000</span>,);</span>
+<span id="cb16-3"><a href=""></a>b <span class="op">=</span> A<span class="op">*</span>x_true;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div id="26dd10ae" class="cell" data-execution_count="64">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb17-1"><a href=""></a><span class="pp">@time</span> x <span class="op">=</span> A<span class="op">\</span>b;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>  3.749634 seconds (9 allocations: 763.092 MiB, 0.43% gc time)</code></pre>
+</div>
+</div>
+<div id="5ff9e642" class="cell" data-execution_count="65">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb19-1"><a href=""></a><span class="pp">@time</span> x <span class="op">=</span> <span class="fu">inv</span>(A)<span class="op">*</span>b;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code> 13.757109 seconds (13 allocations: 767.975 MiB, 0.06% gc time)</code></pre>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<p>One way to check a computed answer of a linear system is to compute the <strong>residual</strong>. The entries of the residual should be ideally close to machine precision (relative to the size of the entries in the solution).</p>
+<div id="b227952a" class="cell" data-execution_count="66">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb21-1"><a href=""></a>A <span class="op">=</span> [<span class="fl">1</span> <span class="fl">0</span> <span class="op">-</span><span class="fl">1</span>; <span class="fl">2</span> <span class="fl">2</span> <span class="fl">1</span>; <span class="op">-</span><span class="fl">1</span> <span class="op">-</span><span class="fl">3</span> <span class="fl">0</span>]</span>
+<span id="cb21-2"><a href=""></a>b <span class="op">=</span> [<span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">3</span>]</span>
+<span id="cb21-3"><a href=""></a>x <span class="op">=</span> A<span class="op">\</span>b</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="66">
+<pre><code>3-element Vector{Float64}:
+  2.1428571428571432
+ -1.7142857142857144
+  1.1428571428571428</code></pre>
+</div>
+</div>
+<div id="9fd6ea19" class="cell" data-execution_count="67">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb23-1"><a href=""></a>residual <span class="op">=</span> b <span class="op">-</span> A<span class="op">*</span>x</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="67">
+<pre><code>3-element Vector{Float64}:
+ -4.440892098500626e-16
+ -4.440892098500626e-16
+  0.0</code></pre>
+</div>
+</div>
+</section>
+<section id="triangular-systems" class="slide level2">
+<h2>Triangular Systems</h2>
+<p>It is especially easy to solve a triangular system of linear equations – one defined with a triangular matrix.</p>
+<div class="fragment">
+<p>Consider the system <span class="math display">\[\begin{bmatrix} 4 &amp; 0 &amp; 0 &amp; 0 \\ 3 &amp; -1 &amp; 0 &amp; 0 \\ -1 &amp; 0 &amp; 3 &amp; 0 \\ 1 &amp; -1 &amp; -1 &amp; 2 \end{bmatrix} \mathbf{x} = \begin{bmatrix} 8 \\ 5 \\ 0 \\ 1 \end{bmatrix}.\]</span></p>
+</div>
+<div class="fragment">
+<p>The <strong>forward substitution</strong> process uses the first equation (row) to find <span class="math inline">\(x_1 = 2\)</span>, then the second to find <span class="math inline">\(x_2 = 1\)</span>, then the third to find <span class="math inline">\(x_3 = 2/3\)</span>, and then the fourth to find <span class="math inline">\(x_4 = 1/3\)</span>.</p>
+</div>
+</section>
+<section class="slide level2">
+
+<p>This process is given by the formulas</p>
+<p><span class="math display">\[\begin{align*}
+x_1 &amp;= \frac{b_1}{L_{11}}
+\\x_2 &amp;= \frac{b_2 - L_{21}x_1}{L_{22}}
+\\x_3 &amp;= \frac{b_3 - L_{31}x_1 - L_{32}x_2}{L_{33}}
+\\x_4 &amp;= \frac{b_4 - L_{41}x_1 - L_{42}x_2 - L_{43}x_3}{L_{44}}.
+\end{align*}\]</span></p>
+<div class="fragment">
+<p>Given an <em>upper</em> triangular system, one can use the <strong>backward substitution</strong> solution process. Note that each of these steps can only fail if one attempts to divide by zero. This proves the following theorem!</p>
+</div>
+<div class="fragment">
+<div class="callout callout-warning no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Theorem: Triangular singularity</strong></p>
+</div>
+<div class="callout-content">
+<p>A triangular matrix is singular if and only if at least one of its diagonal elements is zero.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<p>Let’s implement the forward and backward substitution processes.</p>
+<div id="3a12c786" class="cell" data-execution_count="68">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb25-1"><a href=""></a><span class="st">"""</span></span>
+<span id="cb25-2"><a href=""></a><span class="st">    forwardsub(L,b)</span></span>
+<span id="cb25-3"><a href=""></a></span>
+<span id="cb25-4"><a href=""></a><span class="st">Solve the lower triangular lienar system with matrix 'L' and</span></span>
+<span id="cb25-5"><a href=""></a><span class="st">right-hand side vector 'b'.</span></span>
+<span id="cb25-6"><a href=""></a><span class="st">"""</span></span>
+<span id="cb25-7"><a href=""></a><span class="kw">function</span> <span class="fu">forwardsub</span>(L,b)</span>
+<span id="cb25-8"><a href=""></a>    n <span class="op">=</span> <span class="fu">size</span>(L,<span class="fl">1</span>)</span>
+<span id="cb25-9"><a href=""></a>    x <span class="op">=</span> <span class="fu">zeros</span>(n)</span>
+<span id="cb25-10"><a href=""></a>    x[<span class="fl">1</span>] <span class="op">=</span> b[<span class="fl">1</span>]<span class="op">/</span>L[<span class="fl">1</span>,<span class="fl">1</span>]</span>
+<span id="cb25-11"><a href=""></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="fl">2</span><span class="op">:</span>n</span>
+<span id="cb25-12"><a href=""></a>        s <span class="op">=</span> <span class="fu">sum</span>( L[i,j]<span class="op">*</span>x[j] <span class="cf">for</span> j <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span>i<span class="op">-</span><span class="fl">1</span> )</span>
+<span id="cb25-13"><a href=""></a>        x[i] <span class="op">=</span> ( b[i] <span class="op">-</span> s ) <span class="op">/</span> L[i,i]</span>
+<span id="cb25-14"><a href=""></a>    <span class="cf">end</span></span>
+<span id="cb25-15"><a href=""></a>    <span class="cf">return</span> x</span>
+<span id="cb25-16"><a href=""></a><span class="cf">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="68">
+<pre><code>forwardsub</code></pre>
+</div>
+</div>
+<div id="e46ac4c7" class="cell" data-execution_count="69">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb27-1"><a href=""></a><span class="st">"""</span></span>
+<span id="cb27-2"><a href=""></a><span class="st">    backsub(U,b)</span></span>
+<span id="cb27-3"><a href=""></a></span>
+<span id="cb27-4"><a href=""></a><span class="st">Solve the upper triangular lienar system with matrix 'U' and</span></span>
+<span id="cb27-5"><a href=""></a><span class="st">right-hand side vector 'b'.</span></span>
+<span id="cb27-6"><a href=""></a><span class="st">"""</span></span>
+<span id="cb27-7"><a href=""></a><span class="kw">function</span> <span class="fu">backsub</span>(U,b)</span>
+<span id="cb27-8"><a href=""></a>    n <span class="op">=</span> <span class="fu">size</span>(U,<span class="fl">1</span>)</span>
+<span id="cb27-9"><a href=""></a>    x <span class="op">=</span> <span class="fu">zeros</span>(n)</span>
+<span id="cb27-10"><a href=""></a>    x[n] <span class="op">=</span> b[n]<span class="op">/</span>U[n,n]</span>
+<span id="cb27-11"><a href=""></a>    <span class="cf">for</span> i <span class="kw">in</span> n<span class="op">-</span><span class="fl">1</span><span class="op">:-</span><span class="fl">1</span><span class="op">:</span><span class="fl">1</span></span>
+<span id="cb27-12"><a href=""></a>        s <span class="op">=</span> <span class="fu">sum</span>( U[i,j]<span class="op">*</span>x[j] <span class="cf">for</span> j <span class="kw">in</span> i<span class="op">+</span><span class="fl">1</span><span class="op">:</span>n )</span>
+<span id="cb27-13"><a href=""></a>        x[i] <span class="op">=</span> ( b[i] <span class="op">-</span> s ) <span class="op">/</span> U[i,i]</span>
+<span id="cb27-14"><a href=""></a>    <span class="cf">end</span></span>
+<span id="cb27-15"><a href=""></a>    <span class="cf">return</span> x</span>
+<span id="cb27-16"><a href=""></a><span class="cf">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="69">
+<pre><code>backsub</code></pre>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<div id="2e19f74b" class="cell" data-execution_count="71">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb29-1"><a href=""></a><span class="im">using</span> <span class="bu">LinearAlgebra</span></span>
+<span id="cb29-2"><a href=""></a></span>
+<span id="cb29-3"><a href=""></a>A <span class="op">=</span> <span class="fu">rand</span>(<span class="fl">1</span>.<span class="op">:</span><span class="fl">9</span>., <span class="fl">5</span>, <span class="fl">5</span>)</span>
+<span id="cb29-4"><a href=""></a>L <span class="op">=</span> <span class="fu">tril</span>(A)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="71">
+<pre><code>5×5 Matrix{Float64}:
+ 4.0  0.0  0.0  0.0  0.0
+ 7.0  9.0  0.0  0.0  0.0
+ 5.0  9.0  6.0  0.0  0.0
+ 7.0  2.0  6.0  6.0  0.0
+ 2.0  8.0  3.0  4.0  8.0</code></pre>
+</div>
+</div>
+<div id="c4a1e647" class="cell" data-execution_count="72">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb31-1"><a href=""></a>b <span class="op">=</span> <span class="fu">ones</span>(<span class="fl">5</span>)</span>
+<span id="cb31-2"><a href=""></a>x <span class="op">=</span> <span class="fu">forwardsub</span>(L,b)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="72">
+<pre><code>5-element Vector{Float64}:
+  0.25
+ -0.08333333333333333
+  0.08333333333333333
+ -0.1805555555555555
+  0.20486111111111108</code></pre>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<p>Since we don’t know the solution to this system, to see how accurate the approximation is, we use the residual.</p>
 <!--
 [verbose test]{.content-hidden when-format="revealjs" when-format="pptx"}
 
@@ -544,7 +738,97 @@ Jamie Haddock
  
 :::
 -->
+<div id="a2e1c8fb" class="cell" data-execution_count="73">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb33-1"><a href=""></a>b <span class="op">-</span> L<span class="op">*</span>x</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="73">
+<pre><code>5-element Vector{Float64}:
+ 0.0
+ 0.0
+ 0.0
+ 0.0
+ 0.0</code></pre>
+</div>
+</div>
+</section>
+<section class="slide level2">
 
+<p>Now, we’ll consider another example where we know the solution due to how we built the system.</p>
+<div id="9c5ca608" class="cell" data-execution_count="79">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb35-1"><a href=""></a>α <span class="op">=</span> <span class="fl">0.3</span>;</span>
+<span id="cb35-2"><a href=""></a>β <span class="op">=</span> <span class="fl">1e12</span>;</span>
+<span id="cb35-3"><a href=""></a>U <span class="op">=</span> <span class="fu">diagm</span>( <span class="fl">0</span><span class="op">=&gt;</span><span class="fu">ones</span>(<span class="fl">5</span>), <span class="fl">1</span><span class="op">=&gt;</span>[<span class="op">-</span><span class="fl">1</span>,<span class="op">-</span><span class="fl">1</span>,<span class="op">-</span><span class="fl">1</span>,<span class="op">-</span><span class="fl">1</span>] )</span>
+<span id="cb35-4"><a href=""></a>U[<span class="fl">1</span>,[<span class="fl">4</span>,<span class="fl">5</span>]] <span class="op">=</span> [ α<span class="op">-</span>β, β ]</span>
+<span id="cb35-5"><a href=""></a>U</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="79">
+<pre><code>5×5 Matrix{Float64}:
+ 1.0  -1.0   0.0  -1.0e12   1.0e12
+ 0.0   1.0  -1.0   0.0      0.0
+ 0.0   0.0   1.0  -1.0      0.0
+ 0.0   0.0   0.0   1.0     -1.0
+ 0.0   0.0   0.0   0.0      1.0</code></pre>
+</div>
+</div>
+<div id="ed47cdb7" class="cell" data-execution_count="80">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb37-1"><a href=""></a>x_exact <span class="op">=</span> <span class="fu">ones</span>(<span class="fl">5</span>)</span>
+<span id="cb37-2"><a href=""></a>b <span class="op">=</span> [α,<span class="fl">0</span>,<span class="fl">0</span>,<span class="fl">0</span>,<span class="fl">1</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="80">
+<pre><code>5-element Vector{Float64}:
+ 0.3
+ 0.0
+ 0.0
+ 0.0
+ 1.0</code></pre>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<div id="6d608564" class="cell" data-execution_count="81">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb39-1"><a href=""></a>x <span class="op">=</span> <span class="fu">backsub</span>(U,b)</span>
+<span id="cb39-2"><a href=""></a>err_x <span class="op">=</span> x <span class="op">-</span> x_exact</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="81">
+<pre><code>5-element Vector{Float64}:
+ -4.882812499995559e-5
+  0.0
+  0.0
+  0.0
+  0.0</code></pre>
+</div>
+</div>
+<p>We got only four digits of accuracy in the first entry of the solution, which is not great since we started with 16 digits of accuracy!</p>
+<div class="fragment">
+<div class="callout callout-caution no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Exercise: What caused the error?</strong></p>
+</div>
+<div class="callout-content">
+<p>Think through the steps of the backward substitution process. Are there any that you think might be problematic?</p>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<details>
+<summary>
+<p>Answer:</p>
+When we solve for <span class="math inline">\(x_1\)</span>, we need to compute <span class="math inline">\((\alpha - \beta) + \beta\)</span>. Since the magnitude of <span class="math inline">\(\alpha\)</span> is <em>much</em> smaller than the magnitude of <span class="math inline">\(\beta\)</span>, we suffer from subtractive cancellation!
+</summary>
+</details>
+
+</div>
 </section></section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
