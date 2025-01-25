@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.40">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Jamie Haddock">
+
+<title>Lecture 4: LU factorization, Row pivoting</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="Lecture4_files/libs/clipboard/clipboard.min.js"></script>
+<script src="Lecture4_files/libs/quarto-html/quarto.js"></script>
+<script src="Lecture4_files/libs/quarto-html/popper.min.js"></script>
+<script src="Lecture4_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="Lecture4_files/libs/quarto-html/anchor.min.js"></script>
+<link href="Lecture4_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="Lecture4_files/libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="Lecture4_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="Lecture4_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="Lecture4_files/libs/bootstrap/bootstrap-973236bd072d72a04ee9cd82dcc9cb29.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Lecture 4: LU factorization, Row pivoting</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Jamie Haddock </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="lu-factorization" class="level1">
+<h1>LU Factorization</h1>
+<section id="triangular-products" class="level2">
+<h2 class="anchored" data-anchor-id="triangular-products">Triangular Products</h2>
+<div id="b2d73220" class="cell" data-execution_count="3">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">LinearAlgebra</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>L <span class="op">=</span> <span class="fu">tril</span>( <span class="fu">rand</span>(<span class="fl">1</span><span class="op">:</span><span class="fl">9</span>,<span class="fl">3</span>,<span class="fl">3</span>) )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="3">
+<pre><code>3×3 Matrix{Int64}:
+ 6  0  0
+ 7  3  0
+ 7  2  5</code></pre>
+</div>
+</div>
+<div id="74973997" class="cell" data-execution_count="4">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>U <span class="op">=</span> <span class="fu">triu</span>( <span class="fu">rand</span>(<span class="fl">1</span><span class="op">:</span><span class="fl">9</span>, <span class="fl">3</span>,<span class="fl">3</span>) )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="4">
+<pre><code>3×3 Matrix{Int64}:
+ 4  6  9
+ 0  6  6
+ 0  0  9</code></pre>
+</div>
+</div>
+<div id="f21e3ad1" class="cell" data-execution_count="10">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>L<span class="op">*</span>U</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="10">
+<pre><code>3×3 Matrix{Int64}:
+ 24  36   54
+ 28  60   81
+ 28  54  120</code></pre>
+</div>
+</div>
+<hr>
+<p>One view of matrix multiplication is as a sum of rank-one matrices formed as <em>outer products</em> of corresponding columns of <span class="math inline">\(\mathbf{A}\)</span> and rows of <span class="math inline">\(\mathbf{B}\)</span>, <span class="math display">\[\mathbf{C} = \sum_{k = 1}^n \mathbf{A}_{:k} \mathbf{B}_{k:}.\]</span></p>
+<div id="a2a0b631" class="cell" data-execution_count="5">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>L[<span class="op">:</span>,<span class="fl">1</span>]<span class="op">*</span>U[<span class="fl">1</span>,<span class="op">:</span>]<span class="ch">'</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="5">
+<pre><code>3×3 Matrix{Int64}:
+ 24  36  54
+ 28  42  63
+ 28  42  63</code></pre>
+</div>
+</div>
+<p>Only the first outer product contributes to the first row and column of the product <span class="math inline">\(\mathbf{L}\mathbf{U}\)</span>.</p>
+<hr>
+<div id="646972b2" class="cell" data-execution_count="6">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>L[<span class="op">:</span>,<span class="fl">2</span>]<span class="op">*</span>U[<span class="fl">2</span>,<span class="op">:</span>]<span class="ch">'</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="6">
+<pre><code>3×3 Matrix{Int64}:
+ 0   0   0
+ 0  18  18
+ 0  12  12</code></pre>
+</div>
+</div>
+<div id="512669f1" class="cell" data-execution_count="7">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>L[<span class="op">:</span>,<span class="fl">3</span>]<span class="op">*</span>U[<span class="fl">3</span>,<span class="op">:</span>]<span class="ch">'</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="7">
+<pre><code>3×3 Matrix{Int64}:
+ 0  0   0
+ 0  0   0
+ 0  0  45</code></pre>
+</div>
+</div>
+<p>The triangular zero structures of these matrices create rows and columns of zeros in the inner product.</p>
+</section>
+<section id="triangular-factorization" class="level2">
+<h2 class="anchored" data-anchor-id="triangular-factorization">Triangular factorization</h2>
+<p>When factorizing <span class="math inline">\(n \times n\)</span> matrix <span class="math inline">\(\mathbf{A}\)</span> into a triangular product <span class="math inline">\(\mathbf{L}\mathbf{U}\)</span>, note that <span class="math inline">\(\mathbf{L}\)</span> and <span class="math inline">\(\mathbf{U}\)</span> have <span class="math inline">\(n^2 + n &gt; n^2\)</span> entries, so we may choose the diagonal entries of <span class="math inline">\(\mathbf{L}\)</span> to be one (a <strong>unit lower triangular</strong> matrix).</p>
+<div id="fc70ab28" class="cell" data-execution_count="11">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>A₁ <span class="op">=</span> [</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    <span class="fl">2</span> <span class="fl">0</span> <span class="fl">4</span> <span class="fl">3</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">-</span><span class="fl">4</span> <span class="fl">5</span> <span class="op">-</span><span class="fl">7</span> <span class="op">-</span><span class="fl">10</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    <span class="fl">1</span> <span class="fl">15</span> <span class="fl">2</span> <span class="op">-</span><span class="fl">4.5</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">-</span><span class="fl">2</span> <span class="fl">0</span> <span class="fl">2</span> <span class="op">-</span><span class="fl">13</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>];</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>L <span class="op">=</span> <span class="fu">diagm</span>(<span class="fu">ones</span>(<span class="fl">4</span>))</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>U <span class="op">=</span> <span class="fu">zeros</span>(<span class="fl">4</span>,<span class="fl">4</span>);</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p><span data-when-format="pptx">Since <span class="math inline">\(L_{11} = 1\)</span>, the first row of <span class="math inline">\(\mathbf{U}\)</span> is the first row of <span class="math inline">\(\mathbf{A}\)</span>.</span></p>
+<div id="f55913cd" class="cell" data-execution_count="12">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>U[<span class="fl">1</span>,<span class="op">:</span>] <span class="op">=</span> A₁[<span class="fl">1</span>,<span class="op">:</span>]</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>U</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="12">
+<pre><code>4×4 Matrix{Float64}:
+ 2.0  0.0  4.0  3.0
+ 0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0</code></pre>
+</div>
+</div>
+<hr>
+<p><span data-when-format="pptx">The rest of the first column of <span class="math inline">\(\mathbf{L}\)</span> can be computed from the first column of <span class="math inline">\(\mathbf{A}\)</span> since only the first outer product contributes to this portion of <span class="math inline">\(\mathbf{A}\)</span>.</span></p>
+<div id="11e51d60" class="cell" data-execution_count="13">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>L[<span class="op">:</span>,<span class="fl">1</span>] <span class="op">=</span> A₁[<span class="op">:</span>,<span class="fl">1</span>]<span class="op">/</span>U[<span class="fl">1</span>,<span class="fl">1</span>]</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>L</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="13">
+<pre><code>4×4 Matrix{Float64}:
+  1.0  0.0  0.0  0.0
+ -2.0  1.0  0.0  0.0
+  0.5  0.0  1.0  0.0
+ -1.0  0.0  0.0  1.0</code></pre>
+</div>
+</div>
+<div id="11ab35c5" class="cell" data-execution_count="14">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>A₂ <span class="op">=</span> A₁ <span class="op">-</span> L[<span class="op">:</span>,<span class="fl">1</span>]<span class="op">*</span>U[<span class="fl">1</span>,<span class="op">:</span>]<span class="ch">'</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="14">
+<pre><code>4×4 Matrix{Float64}:
+ 0.0   0.0  0.0    0.0
+ 0.0   5.0  1.0   -4.0
+ 0.0  15.0  0.0   -6.0
+ 0.0   0.0  6.0  -10.0</code></pre>
+</div>
+</div>
+<hr>
+<p><span data-when-format="pptx">Using the same logic as before, we may set the second rows and columns of <span class="math inline">\(\mathbf{U}\)</span> and <span class="math inline">\(\mathbf{L}\)</span> using <span class="math inline">\(\mathbf{A}_2\)</span>.</span></p>
+<div id="deaa9df3" class="cell" data-execution_count="16">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>U[<span class="fl">2</span>,<span class="op">:</span>] <span class="op">=</span> A₂[<span class="fl">2</span>,<span class="op">:</span>]</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>L[<span class="op">:</span>,<span class="fl">2</span>] <span class="op">=</span> A₂[<span class="op">:</span>,<span class="fl">2</span>]<span class="op">/</span>U[<span class="fl">2</span>,<span class="fl">2</span>];</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div id="76a0a03d" class="cell" data-execution_count="17">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>A₃ <span class="op">=</span> A₂ <span class="op">-</span> L[<span class="op">:</span>,<span class="fl">2</span>]<span class="op">*</span>U[<span class="fl">2</span>,<span class="op">:</span>]<span class="ch">'</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="17">
+<pre><code>4×4 Matrix{Float64}:
+ 0.0  0.0   0.0    0.0
+ 0.0  0.0   0.0    0.0
+ 0.0  0.0  -3.0    6.0
+ 0.0  0.0   6.0  -10.0</code></pre>
+</div>
+</div>
+<hr>
+<div id="eff370ca" class="cell" data-execution_count="18">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>U[<span class="fl">3</span>,<span class="op">:</span>] <span class="op">=</span> A₃[<span class="fl">3</span>,<span class="op">:</span>]</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>L[<span class="op">:</span>,<span class="fl">3</span>] <span class="op">=</span> A₃[<span class="op">:</span>,<span class="fl">3</span>]<span class="op">/</span>U[<span class="fl">3</span>,<span class="fl">3</span>]</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>A₄ <span class="op">=</span> A₃ <span class="op">-</span> L[<span class="op">:</span>,<span class="fl">3</span>]<span class="op">*</span>U[<span class="fl">3</span>,<span class="op">:</span>]<span class="ch">'</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="18">
+<pre><code>4×4 Matrix{Float64}:
+ 0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  2.0</code></pre>
+</div>
+</div>
+<div id="9d6129a5" class="cell" data-execution_count="19">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>U[<span class="fl">4</span>,<span class="fl">4</span>] <span class="op">=</span> A₄[<span class="fl">4</span>,<span class="fl">4</span>]</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>A₁ <span class="op">-</span> L<span class="op">*</span>U</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="19">
+<pre><code>4×4 Matrix{Float64}:
+ 0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0
+ 0.0  0.0  0.0  0.0</code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Definition: LU factorization
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Given <span class="math inline">\(n \times n\)</span> matrix <span class="math inline">\(\mathbf{A}\)</span>, its <strong>LU factorization</strong> is <span class="math display">\[\mathbf{A} = \mathbf{L}\mathbf{U},\]</span> where <span class="math inline">\(\mathbf{L}\)</span> is a unit lower triangular matrix and <span class="math inline">\(\mathbf{U}\)</span> is an upper triangular matrix.</p>
+</div>
+</div>
+<hr>
+<div id="5682218c" class="cell" data-execution_count="20">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="st">    lufact(A)</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="st">Compute the LU factorization of square matrix `A`, returning the factors.</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">lufact</span>(A)</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>    n <span class="op">=</span> <span class="fu">size</span>(A,<span class="fl">1</span>)</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>    L <span class="op">=</span> <span class="fu">diagm</span>(<span class="fu">ones</span>(n))  <span class="co">#ones on diagonal, zeros elsewhere</span></span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>    U <span class="op">=</span> <span class="fu">zeros</span>(n,n)</span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>    Ak <span class="op">=</span> <span class="fu">float</span>(<span class="fu">copy</span>(A))</span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Reduction by outer products</span></span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> k <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span>n<span class="op">-</span><span class="fl">1</span></span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>        U[k,<span class="op">:</span>] <span class="op">=</span> Ak[k,<span class="op">:</span>]</span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>        L[<span class="op">:</span>,k] <span class="op">=</span> Ak[<span class="op">:</span>,k]<span class="op">/</span>U[k,k]</span>
+<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a>        Ak <span class="op">-=</span> L[<span class="op">:</span>,k]<span class="op">*</span>U[k,<span class="op">:</span>]<span class="ch">'</span></span>
+<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a>    U[n,n] <span class="op">=</span> Ak[n,n]</span>
+<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fu">LowerTriangular</span>(L),<span class="fu">UpperTriangular</span>(U)</span>
+<span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="20">
+<pre><code>lufact</code></pre>
+</div>
+</div>
+</section>
+<section id="solving-linear-systems-with-lu" class="level2">
+<h2 class="anchored" data-anchor-id="solving-linear-systems-with-lu">Solving linear systems with LU</h2>
+<p>We can solve <span class="math inline">\(\mathbf{A}\mathbf{x} = \mathbf{b}\)</span> with three steps:</p>
+<ol type="1">
+<li>Factor <span class="math inline">\(\mathbf{A} = \mathbf{L}\mathbf{U}\)</span>.</li>
+<li>Solve <span class="math inline">\(\mathbf{L}\mathbf{z} = \mathbf{b}\)</span> for <span class="math inline">\(\mathbf{z}\)</span> using forward substitution.</li>
+<li>Solve <span class="math inline">\(\mathbf{U}\mathbf{x} = \mathbf{z}\)</span> for <span class="math inline">\(\mathbf{x}\)</span> using backward substitution.</li>
+</ol>
+<div class="callout callout-style-default callout-warning no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lemma:
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Solving a triangular <span class="math inline">\(n \times n\)</span> system by forward or backward substitution takes <span class="math inline">\(\mathcal{O}(n^2)\)</span> flops asymptotically.</p>
+</div>
+</div>
+<p><span data-when-format="pptx">Let <span class="math inline">\(f(n)\)</span> and <span class="math inline">\(g(n)\)</span> be positive-valued functions. We say <span class="math inline">\(f(n) = \mathcal{O}(g(n))\)</span> as <span class="math inline">\(n \rightarrow \infty\)</span> if <span class="math inline">\(f(n)/g(n)\)</span> is bounded above as <span class="math inline">\(n \rightarrow \infty\)</span>.</span></p>
+<div class="callout callout-style-default callout-warning no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Theorem: Efficiency of LU factorization
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The LU factorization of an <span class="math inline">\(n \times n\)</span> matrix takes <span class="math inline">\(\mathcal{O}(n^3)\)</span> flops as <span class="math inline">\(n \rightarrow \infty\)</span>. This dominates the cost of solving an <span class="math inline">\(n \times n\)</span> system.</p>
+</div>
+</div>
+<hr>
+<div id="116d16b9" class="cell" data-execution_count="21">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lu</span>(<span class="fu">randn</span>(<span class="fl">3</span>,<span class="fl">3</span>)); <span class="co">#throwaway to force compilation of the lu function code_llvm</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="fl">400</span><span class="op">:</span><span class="fl">400</span><span class="op">:</span><span class="fl">4000</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> []</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> n <span class="kw">in</span> n</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>    A <span class="op">=</span> <span class="fu">randn</span>(n,n)</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>    time <span class="op">=</span> <span class="pp">@elapsed</span> <span class="cf">for</span> j <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">12</span>; <span class="fu">lu</span>(A); <span class="cf">end</span></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">push!</span>(t,time)</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div id="f044ed91" class="cell" data-execution_count="24">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">Plots</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="fu">scatter</span>(n,t,label<span class="op">=</span><span class="st">"data"</span>,legend<span class="op">=:</span>topleft,</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>    xaxis<span class="op">=</span>(<span class="op">:</span>log10,<span class="st">"n"</span>), yaxis<span class="op">=</span>(<span class="op">:</span>log10,<span class="st">"elapsed time"</span>))</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plot!</span>(n,t[<span class="kw">end</span>]<span class="fu">*</span>(n<span class="op">/</span>n[<span class="kw">end</span>])<span class="op">.^</span><span class="fl">3</span>,l<span class="op">=:</span>dash,label<span class="op">=</span><span class="st">"O(n^3)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>WARNING: using Plots.rotate! in module Main conflicts with an existing identifier.</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="24">
+<!--?xml version="1.0" encoding="utf-8"?-->
+<svg xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" width="600" height="400" viewbox="0 0 2400 1600">
+<defs>
+  <clippath id="clip190">
+    <rect x="0" y="0" width="2400" height="1600"></rect>
+  </clippath>
+</defs>
+<path clip-path="url(#clip190)" d="M0 1600 L2400 1600 L2400 0 L0 0  Z" fill="#ffffff" fill-rule="evenodd" fill-opacity="1"></path>
+<defs>
+  <clippath id="clip191">
+    <rect x="480" y="0" width="1681" height="1600"></rect>
+  </clippath>
+</defs>
+<path clip-path="url(#clip190)" d="M251.372 1410.9 L2352.76 1410.9 L2352.76 47.2441 L251.372 47.2441  Z" fill="#ffffff" fill-rule="evenodd" fill-opacity="1"></path>
+<defs>
+  <clippath id="clip192">
+    <rect x="251" y="47" width="2102" height="1365"></rect>
+  </clippath>
+</defs>
+<polyline clip-path="url(#clip192)" style="stroke:#000000; stroke-linecap:round; stroke-linejoin:round; stroke-width:2; stroke-opacity:0.1; fill:none" points="1099.74,1410.9 1099.74,47.2441 "></polyline>
+<polyline clip-path="url(#clip192)" style="stroke:#000000; stroke-linecap:round; stroke-linejoin:round; stroke-width:2; stroke-opacity:0.1; fill:none" points="2090.96,1410.9 2090.96,47.2441 "></polyline>
+<polyline clip-path="url(#clip192)" style="stroke:#000000; stroke-linecap:round; stroke-linejoin:round; stroke-width:2; stroke-opacity:0.1; fill:none" points="251.372,1168.82 2352.76,1168.82 "></polyline>
+<polyline clip-path="url(#clip192)" style="stroke:#000000; stroke-linecap:round; stroke-linejoin:round; stroke-width:2; stroke-opacity:0.1; fill:none" points="251.372,739.996 2352.76,739.996 "></polyline>
+<polyline clip-path="url(#clip192)" style="stroke:#000000; stroke-linecap:round; stroke-linejoin:round; stroke-width:2; stroke-opacity:0.1; fill:none" points="251.372,311.174 2352.76,311.174 "></polyline>
+<polyline clip-path="url(#clip190)" style="stroke:#000000; stroke-linecap:round; stroke-linejoin:round; stroke-width:4; stroke-opacity:1; fill:none" points="251.372,1410.9 2352.76,1410.9 "></polyline>
+<polyline clip-path="url(#clip190)" style="stroke:#000000; stroke-linecap:round; stroke-linejoin:round; stroke-width:4; stroke-opacity:1; fill:none" points="1099.74,1410.9 1099.74,1392 "></polyline>
+<polyline clip-path="url(#clip190)" style="stroke:#000000; stroke-linecap:round; stroke-linejoin:round; stroke-width:4; stroke-opacity:1; fill:none" points="2090.96,1410.9 2090.96,1392 "></polyline>
+<path clip-path="url(#clip190)" d="M1046.54 1485.02 L1054.18 1485.02 L1054.18 1458.66 L1045.87 1460.32 L1045.87 1456.06 L1054.13 1454.4 L1058.81 1454.4 L1058.81 1485.02 L1066.45 1485.02 L1066.45 1488.96 L1046.54 1488.96 L1046.54 1485.02 Z" fill="#000000" fill-rule="nonzero" fill-opacity="1"></path><path clip-path="url(#clip190)" d="M1085.89 1457.48 Q1082.28 1457.48 1080.45 1461.04 Q1078.65 1464.58 1078.65 1471.71 Q1078.65 1478.82 1080.45 1482.38 Q1082.28 1485.92 1085.89 1485.92 Q1089.53 1485.92 1091.33 1482.38 Q1093.16 1478.82 1093.16 1471.71 Q1093.16 1464.58 1091.33 1461.04 Q1089.53 1457.48 1085.89 1457.48 M1085.89 1453.77 Q1091.7 1453.77 1094.76 1458.38 Q1097.84 1462.96 1097.84 1471.71 Q1097.84 1480.44 1094.76 1485.04 Q1091.7 1489.63 1085.89 1489.63 Q1080.08 1489.63 1077 1485.04 Q1073.95 1480.44 1073.95 1471.71 Q1073.95 1462.96 1077 1458.38 Q1080.08 1453.77 1085.89 1453.77 Z" fill="#000000" fill-rule="nonzero" fill-opacity="1"></path><path clip-path="url(#clip190)" d="M1110.53 1446.41 Q1113.26 1446.99 1114.78 1448.83 Q1116.33 1450.68 1116.33 1453.38 Q1116.33 1457.54 1113.47 1459.82 Q1110.61 1462.09 1105.34 1462.09 Q1103.57 1462.09 1101.69 1461.73 Q1099.83 1461.4 1097.84 1460.7 L1097.84 1457.03 Q1099.42 1457.95 1101.3 1458.42 Q1103.18 1458.89 1105.23 1458.89 Q1108.8 1458.89 1110.66 1457.48 Q1112.55 1456.07 1112.55 1453.38 Q1112.55 1450.9 1110.8 1449.51 Q1109.07 1448.1 1105.96 1448.1 L1102.69 1448.1 L1102.69 1444.98 L1106.11 1444.98 Q1108.92 1444.98 1110.4 1443.87 Q1111.89 1442.74 1111.89 1440.63 Q1111.89 1438.47 1110.34 1437.32 Q1108.82 1436.16 1105.96 1436.16 Q1104.4 1436.16 1102.61 1436.49 Q1100.83 1436.83 1098.68 1437.55 L1098.68 1434.16 Q1100.85 1433.56 1102.73 1433.26 Q1104.63 1432.96 1106.3 1432.96 Q1110.63 1432.96 1113.15 1434.93 Q1115.67 1436.89 1115.67 1440.24 Q1115.67 1442.57 1114.33 1444.19 Q1113 1445.79 1110.53 1446.41 Z" fill="#000000" fill-rule="nonzero" fill-opacity="1"></path><path clip-path="url(#clip190)" d="M1123.53 1456.77 L1127.5 1456.77 L1127.5 1461.55 L1123.53 1461.55 L1123.53 1456.77 Z" fill="#000000" fill-rule="nonzero" fill-opacity="1"></path><path clip-path="url(#clip190)" d="M1143.9 1435.97 Q1140.96 1435.97 1139.48 1438.86 Q1138.01 1441.74 1138.01 1447.53 Q1138.01 1453.31 1139.48 1456.2 Q1140.96 1459.08 1143.9 1459.08 Q1146.85 1459.08 1148.32 1456.2 Q1149.8 1453.31 1149.8 1447.53 Q1149.8 1441.74 1148.32 1438.86 Q1146.85 1435.97 1143.9 1435.97 M1143.9 1432.96 Q1148.62 1432.96 1151.1 1436.7 Q1153.6 1440.43 1153.6 1447.53 Q1153.6 1454.62 1151.1 1458.37 Q1148.62 1462.09 1143.9 1462.09 Q1139.18 1462.09 1136.68 1458.37 Q1134.19 1454.62 1134.19 1447.53 Q1134.19 1440.43 1136.68 1436.7 Q1139.18 1432.96 1143.9 1432.96 Z" fill="#000000" fill-rule="nonzero" fill-opacity="1"></path><path clip-path="url(#clip190)" d="M2038.16 1485.02 L2045.8 1485.02 L2045.8 1458.66 L2037.49 1460.32 L2037.49 1456.06 L2045.76 1454.4 L2050.43 1454.4 L2050.43 1485.02 L2058.07 1485.02 L2058.07 1488.96 L2038.16 1488.96 L2038.16 1485.02 Z" fill="#000000" fill-rule="nonzero" fill-opacity="1"></path><path clip-path="url(#clip190)" d="M2077.52 1457.48 Q2073.91 1457.48 2072.08 1461.04 Q2070.27 1464.58 2070.27 1471.71 Q2070.27 1478.82 2072.08 1482.38 Q2073.91 1485.92 2077.52 1485.92 Q2081.15 1485.92 2082.96 1482.38 Q2084.78 1478.82 2084.78 1471.71 Q2084.78 1464.58 2082.96 1461.04 Q2081.15 1457.48 2077.52 1457.48 M2077.52 1453.77 Q2083.33 1453.77 2086.38 1458.38 Q2089.46 1462.96 2089.46 1471.71 Q2089.46 1480.44 2086.38 1485.04 Q2083.33 1489.63 2077.52 1489.63 Q2071.71 1489.63 2068.63 1485.04 Q2065.57 1480.44 2065.57 1471.71 Q2065.57 1462.96 2068.63 1458.38 Q2071.71 1453.77 2077.52 1453.77 Z" fill="#000000" fill-rule="nonzero" fill-opacity="1"></path><path clip-path="url(#clip190)" d="M2102.16 1446.41 Q2104.88 1446.99 2106.41 1448.83 Q2107.95 1450.68 2107.95 1453.38 Q2107.95 1457.54 2105.09 1459.82 Q2102.23 1462.09 2096.97 1462.09 Q2095.2 1462.09 2093.32 1461.73 Q2091.45 1461.4 2089.46 1460.7 L2089.46 1457.03 Q2091.04 1457.95 2092.92 1458.42 Q2094.8 1458.89 2096.85 1458.89 Q2100.43 1458.89 2102.29 1457.48 Q2104.17 1456.07 2104.17 1453.38 Q2104.17 1450.9 2102.42 1449.51 Q2100.69 1448.1 2097.59 1448.1 L2094.31 1448.1 L2094.31 1444.98 L2097.74 1444.98 Q2100.54 1444.98 2102.02 1443.87 Q2103.51 1442.74 2103.51 1440.63 Q2103.51 1438.47 2101.97 1437.32 Q2100.44 1436.16 2097.59 1436.16 Q2096.02 1436.16 2094.24 1436.49 Q2092.45 1436.83 2090.31 1437.55 L2090.31 1434.16 Q2092.47 1433.56 2094.35 1433.26 Q2096.25 1432.96 2097.92 1432.96 Q2102.25 1432.96 2104.77 1434.93 Q2107.29 1436.89 2107.29 1440.24 Q2107.29 1442.57 2105.96 1444.19 Q2104.62 1445.79 2102.16 1446.41 Z" fill="#000000" fill-rule="nonzero" fill-opacity="1"></path><path clip-path="url(#clip190)" d="M2115.15 1456.77 L2119.12 1456.77 L2119.12 1461.55 L2115.15 1461.55 L2115.15 1456.77 Z" fill="#000000" fill-rule="nonzero" fill-opacity="1"></path><path clip-path="url(#clip190)" d="M2127.43 1433.47 L2142.35 1433.47 L2142.35 1436.66 L2130.91 1436.66 L2130.91 1443.55 Q2131.74 1443.27 2132.57 1443.13 Q2133.4 1442.98 2134.22 1442.98 Q2138.93 1442.98 2141.67 1445.56 Q2144.42 1448.14 2144.42 1452.54 Q2144.42 1457.07 2141.6 1459.59 Q2138.77 1462.09 2133.64 1462.09 Q2131.87 1462.09 2130.03 1461.79 Q2128.2 1461.49 2126.25 1460.89 L2126.25 1457.07 Q2127.94 1457.99 2129.75 1458.44 Q2131.55 1458.89 2133.56 1458.89 Q2136.82 1458.89 2138.72 1457.18 Q2140.62 1455.47 2140.62 1452.54 Q2140.62 1449.6 2138.72 1447.89 Q2136.82 1446.18 2133.56 1446.18 Q2132.04 1446.18 2130.52 1446.52 Q2129.01 1446.86 2127.43 1447.57 L2127.43 1433.47 Z" fill="#000000" fill-rule="nonzero" fill-opacity="1"></path><path clip-path="url(#clip190)" d="M1316.99 1552.67 L1316.99 1574.19 L1311.14 1574.19 L1311.14 1552.86 Q1311.14 1547.8 1309.16 1545.29 Q1307.19 1542.77 1303.24 1542.77 Q1298.5 1542.77 1295.76 1545.79 Q1293.02 1548.82 1293.02 1554.04 L1293.02 1574.19 L1287.14 1574.19 L1287.14 1538.54 L1293.02 1538.54 L1293.02 1544.08 Q1295.13 1540.86 1297.96 1539.27 Q1300.82 1537.68 1304.55 1537.68 Q1310.69 1537.68 1313.84 1541.5 Q1316.99 1545.29 1316.99 1552.67 Z" fill="#000000" fill-rule="nonzero" fill-opacity="1"></path><polyline clip-path="url(#clip190)" style="stroke:#000000; stroke-linecap:round; stroke-linejoin:round; stroke-width:4; stroke-opacity:1; fill:none" points="251.372,1410.9 251.372,47.2441 "></polyline>
+<polyline clip-path="url(#clip190)" style="stroke:#000000; stroke-linecap:round; stroke-linejoin:round; stroke-width:4; stroke-opacity:1; fill:none" points="251.372,1168.82 270.27,1168.82 "></polyline>
+<polyline clip-path="url(#clip190)" style="stroke:#000000; stroke-linecap:round; stroke-linejoin:round; stroke-width:4; stroke-opacity:1; fill:none" points="251.372,739.996 270.27,739.996 "></polyline>
+<polyline clip-path="url(#clip190)" style="stroke:#000000; stroke-linecap:round; stroke-linejoin:round; stroke-width:4; stroke-opacity:1; fill:none" points="251.372,311.174 270.27,311.174 "></polyline>
+<path clip-path="url(#clip190)" d="M115.232 1188.61 L122.871 1188.61 L122.871 1162.24 L114.561 1163.91 L114.561 1159.65 L122.825 1157.98 L127.501 1157.98 L127.501 1188.61 L135.14 1188.61 L135.14 1192.54 L115.232 1192.54 L115.232 1188.61 Z" fill="#000000" fill-rule="nonzero" fill-opacity="1"></path><path clip-path="url(#clip190)" d="M154.584 1161.06 Q150.973 1161.06 149.144 1164.63 Q147.339 1168.17 147.339 1175.3 Q147.339 1182.41 149.144 1185.97 Q150.973 1189.51 154.584 1189.51 Q158.218 1189.51 160.024 1185.97 Q161.852 1182.41 161.852 1175.3 Q161.852 1168.17 160.024 1164.63 Q158.218 1161.06 154.584 1161.06 M154.584 1157.36 Q160.394 1157.36 163.45 1161.97 Q166.528 1166.55 166.528 1175.3 Q166.528 1184.03 163.45 1188.63 Q160.394 1193.22 154.584 1193.22 Q148.774 1193.22 145.695 1188.63 Q142.64 1184.03 142.64 1175.3 Q142.64 1166.55 145.695 1161.97 Q148.774 1157.36 154.584 1157.36 Z" fill="#000000" fill-rule="nonzero" fill-opacity="1"></path><path clip-path="url(#clip190)" d="M166.528 1151.46 L190.64 1151.46 L190.64 1154.66 L166.528 1154.66 L166.528 1151.46 Z" fill="#000000" fill-rule="nonzero" fill-opacity="1"></path><path clip-path="url(#clip190)" d="M202.113 1161.94 L215.372 1161.94 L215.372 1165.13 L197.542 1165.13 L197.542 1161.94 Q199.705 1159.7 203.429 1155.94 Q207.172 1152.16 208.131 1151.07 Q209.956 1149.02 210.67 1147.61 Q211.404 1146.18 211.404 1144.8 Q211.404 1142.57 209.824 1141.15 Q208.263 1139.74 205.743 1139.74 Q203.956 1139.74 201.962 1140.36 Q199.987 1140.99 197.73 1142.25 L197.73 1138.41 Q200.025 1137.49 202.019 1137.02 Q204.012 1136.55 205.667 1136.55 Q210.031 1136.55 212.626 1138.73 Q215.222 1140.91 215.222 1144.56 Q215.222 1146.29 214.563 1147.85 Q213.924 1149.39 212.212 1151.5 Q211.742 1152.04 209.222 1154.66 Q206.702 1157.25 202.113 1161.94 Z" fill="#000000" fill-rule="nonzero" fill-opacity="1"></path><path clip-path="url(#clip190)" d="M114.931 759.788 L122.57 759.788 L122.57 733.422 L114.26 735.089 L114.26 730.83 L122.524 729.163 L127.2 729.163 L127.2 759.788 L134.839 759.788 L134.839 763.723 L114.931 763.723 L114.931 759.788 Z" fill="#000000" fill-rule="nonzero" fill-opacity="1"></path><path clip-path="url(#clip190)" d="M154.283 732.242 Q150.672 732.242 148.843 735.807 Q147.038 739.348 147.038 746.478 Q147.038 753.584 148.843 757.149 Q150.672 760.691 154.283 760.691 Q157.917 760.691 159.723 757.149 Q161.552 753.584 161.552 746.478 Q161.552 739.348 159.723 735.807 Q157.917 732.242 154.283 732.242 M154.283 728.538 Q160.093 728.538 163.149 733.145 Q166.227 737.728 166.227 746.478 Q166.227 755.205 163.149 759.811 Q160.093 764.395 154.283 764.395 Q148.473 764.395 145.394 759.811 Q142.339 755.205 142.339 746.478 Q142.339 737.728 145.394 733.145 Q148.473 728.538 154.283 728.538 Z" fill="#000000" fill-rule="nonzero" fill-opacity="1"></path><path clip-path="url(#clip190)" d="M166.227 722.64 L190.339 722.64 L190.339 725.837 L166.227 725.837 L166.227 722.64 Z" fill="#000000" fill-rule="nonzero" fill-opacity="1"></path><path clip-path="url(#clip190)" d="M199.197 733.116 L205.404 733.116 L205.404 711.693 L198.652 713.048 L198.652 709.587 L205.366 708.233 L209.166 708.233 L209.166 733.116 L215.372 733.116 L215.372 736.313 L199.197 736.313 L199.197 733.116 Z" fill="#000000" fill-rule="nonzero" fill-opacity="1"></path><path clip-path="url(#clip190)" d="M144.667 330.967 L152.305 330.967 L152.305 304.601 L143.995 306.268 L143.995 302.008 L152.259 300.342 L156.935 300.342 L156.935 330.967 L164.574 330.967 L164.574 334.902 L144.667 334.902 L144.667 330.967 Z" fill="#000000" fill-rule="nonzero" fill-opacity="1"></path><path clip-path="url(#clip190)" d="M184.018 303.42 Q180.407 303.42 178.578 306.985 Q176.773 310.527 176.773 317.656 Q176.773 324.763 178.578 328.328 Q180.407 331.869 184.018 331.869 Q187.652 331.869 189.458 328.328 Q191.287 324.763 191.287 317.656 Q191.287 310.527 189.458 306.985 Q187.652 303.42 184.018 303.42 M184.018 299.717 Q189.828 299.717 192.884 304.323 Q195.963 308.906 195.963 317.656 Q195.963 326.383 192.884 330.99 Q189.828 335.573 184.018 335.573 Q178.208 335.573 175.129 330.99 Q172.074 326.383 172.074 317.656 Q172.074 308.906 175.129 304.323 Q178.208 299.717 184.018 299.717 Z" fill="#000000" fill-rule="nonzero" fill-opacity="1"></path><path clip-path="url(#clip190)" d="M205.667 281.913 Q202.733 281.913 201.248 284.809 Q199.781 287.687 199.781 293.48 Q199.781 299.253 201.248 302.15 Q202.733 305.027 205.667 305.027 Q208.62 305.027 210.087 302.15 Q211.573 299.253 211.573 293.48 Q211.573 287.687 210.087 284.809 Q208.62 281.913 205.667 281.913 M205.667 278.903 Q210.388 278.903 212.871 282.646 Q215.372 286.37 215.372 293.48 Q215.372 300.57 212.871 304.313 Q210.388 308.037 205.667 308.037 Q200.947 308.037 198.445 304.313 Q195.963 300.57 195.963 293.48 Q195.963 286.37 198.445 282.646 Q200.947 278.903 205.667 278.903 Z" fill="#000000" fill-rule="nonzero" fill-opacity="1"></path><path clip-path="url(#clip190)" d="M44.7161 903.984 L47.5806 903.984 L47.5806 930.911 Q53.6281 930.529 56.8109 927.283 Q59.9619 924.004 59.9619 918.18 Q59.9619 914.806 59.1344 911.655 Q58.3069 908.472 56.6518 905.353 L62.1899 905.353 Q63.5267 908.504 64.227 911.814 Q64.9272 915.124 64.9272 918.53 Q64.9272 927.06 59.9619 932.057 Q54.9967 937.022 46.5303 937.022 Q37.7774 937.022 32.6531 932.311 Q27.4968 927.569 27.4968 919.548 Q27.4968 912.355 32.1438 908.185 Q36.7589 903.984 44.7161 903.984 M42.9973 909.841 Q38.1912 909.904 35.3266 912.546 Q32.4621 915.156 32.4621 919.485 Q32.4621 924.386 35.2312 927.346 Q38.0002 930.274 43.0292 930.72 L42.9973 909.841 Z" fill="#000000" fill-rule="nonzero" fill-opacity="1"></path><path clip-path="url(#clip190)" d="M14.479 894.372 L14.479 888.515 L64.0042 888.515 L64.0042 894.372 L14.479 894.372 Z" fill="#000000" fill-rule="nonzero" fill-opacity="1"></path><path clip-path="url(#clip190)" d="M46.0847 860.061 Q46.0847 867.158 47.7079 869.896 Q49.3312 872.633 53.2461 872.633 Q56.3653 872.633 58.2114 870.596 Q60.0256 868.527 60.0256 864.994 Q60.0256 860.124 56.5881 857.196 Q53.1188 854.236 47.3897 854.236 L46.0847 854.236 L46.0847 860.061 M43.6657 848.38 L64.0042 848.38 L64.0042 854.236 L58.5933 854.236 Q61.8398 856.241 63.3994 859.233 Q64.9272 862.225 64.9272 866.554 Q64.9272 872.028 61.8716 875.275 Q58.7843 878.489 53.6281 878.489 Q47.6125 878.489 44.5569 874.479 Q41.5014 870.437 41.5014 862.448 L41.5014 854.236 L40.9285 854.236 Q36.8862 854.236 34.6901 856.91 Q32.4621 859.551 32.4621 864.358 Q32.4621 867.413 33.1941 870.309 Q33.9262 873.206 35.3903 875.879 L29.9795 875.879 Q28.7381 872.665 28.1334 869.641 Q27.4968 866.617 27.4968 863.753 Q27.4968 856.018 31.5072 852.199 Q35.5176 848.38 43.6657 848.38 Z" fill="#000000" fill-rule="nonzero" fill-opacity="1"></path><path clip-path="url(#clip190)" d="M58.657 830.651 L77.5631 830.651 L77.5631 836.539 L28.3562 836.539 L28.3562 830.651 L33.7671 830.651 Q30.5842 828.805 29.0564 826.004 Q27.4968 823.171 27.4968 819.257 Q27.4968 812.763 32.6531 808.721 Q37.8093 804.647 46.212 804.647 Q54.6147 804.647 59.771 808.721 Q64.9272 812.763 64.9272 819.257 Q64.9272 823.171 63.3994 826.004 Q61.8398 828.805 58.657 830.651 M46.212 810.726 Q39.7508 810.726 36.0905 813.4 Q32.3984 816.042 32.3984 820.689 Q32.3984 825.336 36.0905 828.009 Q39.7508 830.651 46.212 830.651 Q52.6732 830.651 56.3653 828.009 Q60.0256 825.336 60.0256 820.689 Q60.0256 816.042 56.3653 813.4 Q52.6732 810.726 46.212 810.726 Z" fill="#000000" fill-rule="nonzero" fill-opacity="1"></path><path clip-path="url(#clip190)" d="M29.4065 772.214 L34.9447 772.214 Q33.6716 774.697 33.035 777.37 Q32.3984 780.044 32.3984 782.908 Q32.3984 787.269 33.7352 789.465 Q35.072 791.629 37.7456 791.629 Q39.7826 791.629 40.9603 790.07 Q42.1061 788.51 43.1565 783.8 L43.6021 781.794 Q44.9389 775.556 47.3897 772.946 Q49.8086 770.304 54.1691 770.304 Q59.1344 770.304 62.0308 774.251 Q64.9272 778.166 64.9272 785.041 Q64.9272 787.905 64.3543 791.025 Q63.8132 794.112 62.6992 797.549 L56.6518 797.549 Q58.3387 794.303 59.198 791.152 Q60.0256 788.001 60.0256 784.914 Q60.0256 780.776 58.6251 778.548 Q57.1929 776.32 54.6147 776.32 Q52.2276 776.32 50.9545 777.943 Q49.6813 779.535 48.5037 784.977 L48.0262 787.014 Q46.8804 792.457 44.5251 794.876 Q42.138 797.295 38.0002 797.295 Q32.9713 797.295 30.2341 793.73 Q27.4968 790.165 27.4968 783.609 Q27.4968 780.362 27.9743 777.497 Q28.4517 774.633 29.4065 772.214 Z" fill="#000000" fill-rule="nonzero" fill-opacity="1"></path><path clip-path="url(#clip190)" d="M44.7161 730.487 L47.5806 730.487 L47.5806 757.414 Q53.6281 757.032 56.8109 753.785 Q59.9619 750.507 59.9619 744.682 Q59.9619 741.308 59.1344 738.157 Q58.3069 734.975 56.6518 731.855 L62.1899 731.855 Q63.5267 735.006 64.227 738.317 Q64.9272 741.627 64.9272 745.032 Q64.9272 753.562 59.9619 758.56 Q54.9967 763.525 46.5303 763.525 Q37.7774 763.525 32.6531 758.814 Q27.4968 754.072 27.4968 746.051 Q27.4968 738.858 32.1438 734.688 Q36.7589 730.487 44.7161 730.487 M42.9973 736.343 Q38.1912 736.407 35.3266 739.049 Q32.4621 741.659 32.4621 745.987 Q32.4621 750.889 35.2312 753.849 Q38.0002 756.777 43.0292 757.223 L42.9973 736.343 Z" fill="#000000" fill-rule="nonzero" fill-opacity="1"></path><path clip-path="url(#clip190)" d="M33.7671 697.417 L14.479 697.417 L14.479 691.56 L64.0042 691.56 L64.0042 697.417 L58.657 697.417 Q61.8398 699.263 63.3994 702.096 Q64.9272 704.897 64.9272 708.843 Q64.9272 715.305 59.771 719.379 Q54.6147 723.421 46.212 723.421 Q37.8093 723.421 32.6531 719.379 Q27.4968 715.305 27.4968 708.843 Q27.4968 704.897 29.0564 702.096 Q30.5842 699.263 33.7671 697.417 M46.212 717.373 Q52.6732 717.373 56.3653 714.732 Q60.0256 712.058 60.0256 707.411 Q60.0256 702.764 56.3653 700.09 Q52.6732 697.417 46.212 697.417 Q39.7508 697.417 36.0905 700.09 Q32.3984 702.764 32.3984 707.411 Q32.3984 712.058 36.0905 714.732 Q39.7508 717.373 46.212 717.373 Z" fill="#000000" fill-rule="nonzero" fill-opacity="1"></path><path clip-path="url(#clip190)" d="M18.2347 652.984 L28.3562 652.984 L28.3562 640.921 L32.9077 640.921 L32.9077 652.984 L52.2594 652.984 Q56.6199 652.984 57.8613 651.807 Q59.1026 650.597 59.1026 646.937 L59.1026 640.921 L64.0042 640.921 L64.0042 646.937 Q64.0042 653.716 61.4897 656.294 Q58.9434 658.873 52.2594 658.873 L32.9077 658.873 L32.9077 663.169 L28.3562 663.169 L28.3562 658.873 L18.2347 658.873 L18.2347 652.984 Z" fill="#000000" fill-rule="nonzero" fill-opacity="1"></path><path clip-path="url(#clip190)" d="M28.3562 633.219 L28.3562 627.362 L64.0042 627.362 L64.0042 633.219 L28.3562 633.219 M14.479 633.219 L14.479 627.362 L21.895 627.362 L21.895 633.219 L14.479 633.219 Z" fill="#000000" fill-rule="nonzero" fill-opacity="1"></path><path clip-path="url(#clip190)" d="M35.1993 587.354 Q31.2526 585.158 29.3747 582.102 Q27.4968 579.047 27.4968 574.909 Q27.4968 569.339 31.4117 566.315 Q35.2948 563.291 42.4881 563.291 L64.0042 563.291 L64.0042 569.18 L42.679 569.18 Q37.5546 569.18 35.072 570.994 Q32.5894 572.808 32.5894 576.532 Q32.5894 581.084 35.6131 583.725 Q38.6368 586.367 43.8567 586.367 L64.0042 586.367 L64.0042 592.255 L42.679 592.255 Q37.5228 592.255 35.072 594.07 Q32.5894 595.884 32.5894 599.671 Q32.5894 604.159 35.6449 606.801 Q38.6686 609.443 43.8567 609.443 L64.0042 609.443 L64.0042 615.331 L28.3562 615.331 L28.3562 609.443 L33.8944 609.443 Q30.616 607.438 29.0564 604.637 Q27.4968 601.836 27.4968 597.985 Q27.4968 594.101 29.4702 591.396 Q31.4436 588.659 35.1993 587.354 Z" fill="#000000" fill-rule="nonzero" fill-opacity="1"></path><path clip-path="url(#clip190)" d="M44.7161 521.119 L47.5806 521.119 L47.5806 548.046 Q53.6281 547.664 56.8109 544.417 Q59.9619 541.139 59.9619 535.314 Q59.9619 531.94 59.1344 528.789 Q58.3069 525.606 56.6518 522.487 L62.1899 522.487 Q63.5267 525.638 64.227 528.948 Q64.9272 532.259 64.9272 535.664 Q64.9272 544.194 59.9619 549.191 Q54.9967 554.157 46.5303 554.157 Q37.7774 554.157 32.6531 549.446 Q27.4968 544.704 27.4968 536.683 Q27.4968 529.49 32.1438 525.32 Q36.7589 521.119 44.7161 521.119 M42.9973 526.975 Q38.1912 527.039 35.3266 529.681 Q32.4621 532.29 32.4621 536.619 Q32.4621 541.521 35.2312 544.481 Q38.0002 547.409 43.0292 547.855 L42.9973 526.975 Z" fill="#000000" fill-rule="nonzero" fill-opacity="1"></path><circle clip-path="url(#clip192)" cx="310.845" cy="1048.85" r="14.4" fill="#009af9" fill-rule="evenodd" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="3.2"></circle>
+<circle clip-path="url(#clip192)" cx="907.618" cy="858.471" r="14.4" fill="#009af9" fill-rule="evenodd" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="3.2"></circle>
+<circle clip-path="url(#clip192)" cx="1256.71" cy="387.797" r="14.4" fill="#009af9" fill-rule="evenodd" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="3.2"></circle>
+<circle clip-path="url(#clip192)" cx="1504.39" cy="566.996" r="14.4" fill="#009af9" fill-rule="evenodd" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="3.2"></circle>
+<circle clip-path="url(#clip192)" cx="1696.51" cy="439.136" r="14.4" fill="#009af9" fill-rule="evenodd" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="3.2"></circle>
+<circle clip-path="url(#clip192)" cx="1853.48" cy="354.776" r="14.4" fill="#009af9" fill-rule="evenodd" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="3.2"></circle>
+<circle clip-path="url(#clip192)" cx="1986.2" cy="266.392" r="14.4" fill="#009af9" fill-rule="evenodd" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="3.2"></circle>
+<circle clip-path="url(#clip192)" cx="2101.16" cy="209.839" r="14.4" fill="#009af9" fill-rule="evenodd" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="3.2"></circle>
+<circle clip-path="url(#clip192)" cx="2202.57" cy="145.523" r="14.4" fill="#009af9" fill-rule="evenodd" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="3.2"></circle>
+<circle clip-path="url(#clip192)" cx="2293.28" cy="85.838" r="14.4" fill="#009af9" fill-rule="evenodd" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="3.2"></circle>
+<polyline clip-path="url(#clip192)" style="stroke:#e26f46; stroke-linecap:round; stroke-linejoin:round; stroke-width:4; stroke-opacity:1; fill:none" stroke-dasharray="16, 10" points="310.845,1372.3 907.618,985.038 1256.71,758.503 1504.39,597.774 1696.51,473.102 1853.48,371.239 1986.2,285.114 2101.16,210.509 2202.57,144.703 2293.28,85.838 "></polyline>
+<path clip-path="url(#clip190)" d="M321.418 248.219 L699.056 248.219 L699.056 92.6992 L321.418 92.6992  Z" fill="#ffffff" fill-rule="evenodd" fill-opacity="1"></path>
+<polyline clip-path="url(#clip190)" style="stroke:#000000; stroke-linecap:round; stroke-linejoin:round; stroke-width:4; stroke-opacity:1; fill:none" points="321.418,248.219 699.056,248.219 699.056,92.6992 321.418,92.6992 321.418,248.219 "></polyline>
+<circle clip-path="url(#clip190)" cx="414.813" cy="144.539" r="20.48" fill="#009af9" fill-rule="evenodd" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="4.55111"></circle>
+<path clip-path="url(#clip190)" d="M527.12 139.829 L527.12 125.801 L531.379 125.801 L531.379 161.819 L527.12 161.819 L527.12 157.93 Q525.777 160.245 523.717 161.379 Q521.68 162.49 518.81 162.49 Q514.111 162.49 511.148 158.74 Q508.208 154.991 508.208 148.879 Q508.208 142.768 511.148 139.018 Q514.111 135.268 518.81 135.268 Q521.68 135.268 523.717 136.403 Q525.777 137.514 527.12 139.829 M512.606 148.879 Q512.606 153.578 514.527 156.264 Q516.472 158.926 519.851 158.926 Q523.231 158.926 525.175 156.264 Q527.12 153.578 527.12 148.879 Q527.12 144.18 525.175 141.518 Q523.231 138.833 519.851 138.833 Q516.472 138.833 514.527 141.518 Q512.606 144.18 512.606 148.879 Z" fill="#000000" fill-rule="nonzero" fill-opacity="1"></path><path clip-path="url(#clip190)" d="M551.935 148.787 Q546.773 148.787 544.782 149.967 Q542.791 151.148 542.791 153.995 Q542.791 156.264 544.273 157.606 Q545.777 158.926 548.347 158.926 Q551.888 158.926 554.018 156.426 Q556.171 153.903 556.171 149.736 L556.171 148.787 L551.935 148.787 M560.43 147.028 L560.43 161.819 L556.171 161.819 L556.171 157.884 Q554.712 160.245 552.536 161.379 Q550.361 162.49 547.212 162.49 Q543.231 162.49 540.87 160.268 Q538.532 158.023 538.532 154.273 Q538.532 149.898 541.449 147.676 Q544.388 145.454 550.198 145.454 L556.171 145.454 L556.171 145.037 Q556.171 142.097 554.226 140.5 Q552.305 138.879 548.81 138.879 Q546.587 138.879 544.481 139.412 Q542.374 139.944 540.43 141.009 L540.43 137.074 Q542.768 136.171 544.967 135.731 Q547.166 135.268 549.249 135.268 Q554.874 135.268 557.652 138.185 Q560.43 141.102 560.43 147.028 Z" fill="#000000" fill-rule="nonzero" fill-opacity="1"></path><path clip-path="url(#clip190)" d="M573.416 128.532 L573.416 135.893 L582.189 135.893 L582.189 139.204 L573.416 139.204 L573.416 153.278 Q573.416 156.449 574.272 157.352 Q575.152 158.254 577.814 158.254 L582.189 158.254 L582.189 161.819 L577.814 161.819 Q572.884 161.819 571.009 159.99 Q569.134 158.139 569.134 153.278 L569.134 139.204 L566.009 139.204 L566.009 135.893 L569.134 135.893 L569.134 128.532 L573.416 128.532 Z" fill="#000000" fill-rule="nonzero" fill-opacity="1"></path><path clip-path="url(#clip190)" d="M599.573 148.787 Q594.411 148.787 592.42 149.967 Q590.43 151.148 590.43 153.995 Q590.43 156.264 591.911 157.606 Q593.416 158.926 595.985 158.926 Q599.527 158.926 601.657 156.426 Q603.809 153.903 603.809 149.736 L603.809 148.787 L599.573 148.787 M608.069 147.028 L608.069 161.819 L603.809 161.819 L603.809 157.884 Q602.351 160.245 600.175 161.379 Q597.999 162.49 594.851 162.49 Q590.87 162.49 588.508 160.268 Q586.171 158.023 586.171 154.273 Q586.171 149.898 589.087 147.676 Q592.027 145.454 597.837 145.454 L603.809 145.454 L603.809 145.037 Q603.809 142.097 601.865 140.5 Q599.944 138.879 596.448 138.879 Q594.226 138.879 592.12 139.412 Q590.013 139.944 588.069 141.009 L588.069 137.074 Q590.407 136.171 592.606 135.731 Q594.805 135.268 596.888 135.268 Q602.513 135.268 605.291 138.185 Q608.069 141.102 608.069 147.028 Z" fill="#000000" fill-rule="nonzero" fill-opacity="1"></path><polyline clip-path="url(#clip190)" style="stroke:#e26f46; stroke-linecap:round; stroke-linejoin:round; stroke-width:4; stroke-opacity:1; fill:none" stroke-dasharray="16, 10" points="344.767,196.379 484.859,196.379 "></polyline>
+<path clip-path="url(#clip190)" d="M524.226 182.27 Q519.134 182.27 516.125 186.067 Q513.138 189.863 513.138 196.414 Q513.138 202.942 516.125 206.738 Q519.134 210.534 524.226 210.534 Q529.319 210.534 532.282 206.738 Q535.268 202.942 535.268 196.414 Q535.268 189.863 532.282 186.067 Q529.319 182.27 524.226 182.27 M524.226 178.474 Q531.495 178.474 535.847 183.358 Q540.199 188.22 540.199 196.414 Q540.199 204.585 535.847 209.469 Q531.495 214.33 524.226 214.33 Q516.935 214.33 512.56 209.469 Q508.208 204.608 508.208 196.414 Q508.208 188.22 512.56 183.358 Q516.935 178.474 524.226 178.474 Z" fill="#000000" fill-rule="nonzero" fill-opacity="1"></path><path clip-path="url(#clip190)" d="M557.56 177.687 Q554.458 183.011 552.953 188.22 Q551.448 193.428 551.448 198.775 Q551.448 204.122 552.953 209.377 Q554.481 214.608 557.56 219.909 L553.856 219.909 Q550.384 214.469 548.648 209.215 Q546.935 203.96 546.935 198.775 Q546.935 193.613 548.648 188.382 Q550.361 183.15 553.856 177.687 L557.56 177.687 Z" fill="#000000" fill-rule="nonzero" fill-opacity="1"></path><path clip-path="url(#clip190)" d="M587.374 198.011 L587.374 213.659 L583.115 213.659 L583.115 198.15 Q583.115 194.469 581.68 192.641 Q580.245 190.812 577.374 190.812 Q573.925 190.812 571.934 193.011 Q569.944 195.21 569.944 199.006 L569.944 213.659 L565.661 213.659 L565.661 187.733 L569.944 187.733 L569.944 191.761 Q571.472 189.423 573.532 188.266 Q575.615 187.108 578.323 187.108 Q582.791 187.108 585.083 189.886 Q587.374 192.641 587.374 198.011 Z" fill="#000000" fill-rule="nonzero" fill-opacity="1"></path><path clip-path="url(#clip190)" d="M613.531 179.099 L626.101 191.993 L621.448 191.993 L611.263 182.849 L601.078 191.993 L596.425 191.993 L608.994 179.099 L613.531 179.099 Z" fill="#000000" fill-rule="nonzero" fill-opacity="1"></path><path clip-path="url(#clip190)" d="M650.36 195.025 Q653.716 195.743 655.591 198.011 Q657.49 200.28 657.49 203.613 Q657.49 208.729 653.971 211.53 Q650.453 214.33 643.971 214.33 Q641.795 214.33 639.48 213.891 Q637.189 213.474 634.735 212.618 L634.735 208.104 Q636.679 209.238 638.994 209.817 Q641.309 210.395 643.832 210.395 Q648.23 210.395 650.522 208.659 Q652.837 206.923 652.837 203.613 Q652.837 200.557 650.684 198.844 Q648.554 197.108 644.735 197.108 L640.707 197.108 L640.707 193.266 L644.92 193.266 Q648.369 193.266 650.198 191.9 Q652.027 190.511 652.027 187.919 Q652.027 185.257 650.128 183.845 Q648.254 182.409 644.735 182.409 Q642.814 182.409 640.615 182.826 Q638.416 183.243 635.777 184.122 L635.777 179.956 Q638.439 179.215 640.754 178.845 Q643.091 178.474 645.152 178.474 Q650.476 178.474 653.578 180.905 Q656.679 183.312 656.679 187.432 Q656.679 190.303 655.036 192.294 Q653.392 194.261 650.36 195.025 Z" fill="#000000" fill-rule="nonzero" fill-opacity="1"></path><path clip-path="url(#clip190)" d="M665.082 177.687 L668.786 177.687 Q672.258 183.15 673.971 188.382 Q675.707 193.613 675.707 198.775 Q675.707 203.96 673.971 209.215 Q672.258 214.469 668.786 219.909 L665.082 219.909 Q668.161 214.608 669.665 209.377 Q671.193 204.122 671.193 198.775 Q671.193 193.428 669.665 188.22 Q668.161 183.011 665.082 177.687 Z" fill="#000000" fill-rule="nonzero" fill-opacity="1"></path></svg>
+</div>
+</div>
+</section>
+</section>
+<section id="row-pivoting" class="level1">
+<h1>Row pivoting</h1>
+<div id="cc1720b3" class="cell" data-execution_count="25">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>A <span class="op">=</span> [<span class="fl">2</span> <span class="fl">0</span> <span class="fl">4</span> <span class="fl">3</span>; <span class="op">-</span><span class="fl">4</span> <span class="fl">5</span> <span class="op">-</span><span class="fl">7</span> <span class="op">-</span><span class="fl">10</span>; <span class="fl">1</span> <span class="fl">15</span> <span class="fl">2</span> <span class="op">-</span><span class="fl">4.5</span>; <span class="op">-</span><span class="fl">2</span> <span class="fl">0</span> <span class="fl">2</span> <span class="op">-</span><span class="fl">13</span>];</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>L,U <span class="op">=</span> <span class="fu">lufact</span>(A);</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>L</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="25">
+<pre><code>4×4 LowerTriangular{Float64, Matrix{Float64}}:
+  1.0   ⋅     ⋅    ⋅ 
+ -2.0  1.0    ⋅    ⋅ 
+  0.5  3.0   1.0   ⋅ 
+ -1.0  0.0  -2.0  1.0</code></pre>
+</div>
+</div>
+<div id="0d54a326" class="cell" data-execution_count="26">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>A[[<span class="fl">2</span>,<span class="fl">4</span>],<span class="op">:</span>] <span class="op">=</span> A[[<span class="fl">4</span>,<span class="fl">2</span>],<span class="op">:</span>]</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>L,U <span class="op">=</span> <span class="fu">lufact</span>(A);</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>L</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="26">
+<pre><code>4×4 LowerTriangular{Float64, Matrix{Float64}}:
+  1.0     ⋅      ⋅    ⋅ 
+ -1.0  NaN       ⋅    ⋅ 
+  0.5   Inf   NaN     ⋅ 
+ -2.0   Inf   NaN    1.0</code></pre>
+</div>
+</div>
+<p>After swapping the 2nd and 4th rows of <span class="math inline">\(\mathbf{A}\)</span>, the matrix is still nonsingular, but now the LU factorization fails due to dividing by a diagonal element of <span class="math inline">\(\mathbf{U}\)</span> that is zero. The diagonal element of <span class="math inline">\(\mathbf{U}\)</span> by which we divide is called the <strong>pivot element</strong> of its column.</p>
+<section id="choosing-a-pivot" class="level2">
+<h2 class="anchored" data-anchor-id="choosing-a-pivot">Choosing a pivot</h2>
+<p>In order to avoid a zero pivot in the factorization process, we use a technique known as <strong>row pivoting</strong>: when performing elimination in the <span class="math inline">\(j\)</span>th column, choose as the pivot the element in column <span class="math inline">\(j\)</span> that is largest in absolute value.</p>
+<div id="c1daec8d" class="cell" data-execution_count="27">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>A₁ <span class="op">=</span> [<span class="fl">2</span> <span class="fl">0</span> <span class="fl">4</span> <span class="fl">3</span>; <span class="op">-</span><span class="fl">2</span> <span class="fl">0</span> <span class="fl">2</span> <span class="op">-</span><span class="fl">13</span>; <span class="fl">1</span> <span class="fl">15</span> <span class="fl">2</span> <span class="op">-</span><span class="fl">4.5</span>; <span class="op">-</span><span class="fl">4</span> <span class="fl">5</span> <span class="op">-</span><span class="fl">7</span> <span class="op">-</span><span class="fl">10</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="27">
+<pre><code>4×4 Matrix{Float64}:
+  2.0   0.0   4.0    3.0
+ -2.0   0.0   2.0  -13.0
+  1.0  15.0   2.0   -4.5
+ -4.0   5.0  -7.0  -10.0</code></pre>
+</div>
+</div>
+<hr>
+<div id="a42afaa0" class="cell" data-execution_count="28">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>i <span class="op">=</span> <span class="fu">argmax</span>( <span class="fu">abs</span>.(A₁[<span class="op">:</span>,<span class="fl">1</span>]) )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="28">
+<pre><code>4</code></pre>
+</div>
+</div>
+<div id="7ef70320" class="cell" data-execution_count="29">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>L,U <span class="op">=</span> <span class="fu">zeros</span>(<span class="fl">4</span>,<span class="fl">4</span>),<span class="fu">zeros</span>(<span class="fl">4</span>,<span class="fl">4</span>)</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>U[<span class="fl">1</span>,<span class="op">:</span>] <span class="op">=</span> A₁[i,<span class="op">:</span>]</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>L[<span class="op">:</span>,<span class="fl">1</span>]<span class="op">=</span> A₁[<span class="op">:</span>,<span class="fl">1</span>]<span class="op">/</span>U[<span class="fl">1</span>,<span class="fl">1</span>]</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>A₂ <span class="op">=</span> A₁ <span class="op">-</span> L[<span class="op">:</span>,<span class="fl">1</span>]<span class="op">*</span>U[<span class="fl">1</span>,<span class="op">:</span>]<span class="ch">'</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="29">
+<pre><code>4×4 Matrix{Float64}:
+ 0.0   2.5   0.5   -2.0
+ 0.0  -2.5   5.5   -8.0
+ 0.0  16.25  0.25  -7.0
+ 0.0   0.0   0.0    0.0</code></pre>
+</div>
+</div>
+<div id="05f3732f" class="cell" data-execution_count="30">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="pp">@show</span> i <span class="op">=</span> <span class="fu">argmax</span>( <span class="fu">abs</span>.(A₂[<span class="op">:</span>,<span class="fl">2</span>]) )</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>U[<span class="fl">2</span>,<span class="op">:</span>] <span class="op">=</span> A₂[i,<span class="op">:</span>]</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>L[<span class="op">:</span>,<span class="fl">2</span>] <span class="op">=</span> A₂[<span class="op">:</span>,<span class="fl">2</span>]<span class="op">/</span>U[<span class="fl">2</span>,<span class="fl">2</span>]</span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>A₃ <span class="op">=</span> A₂ <span class="op">-</span> L[<span class="op">:</span>,<span class="fl">2</span>]<span class="op">*</span>U[<span class="fl">2</span>,<span class="op">:</span>]<span class="ch">'</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>i = argmax(abs.(A₂[:, 2])) = 3</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="30">
+<pre><code>4×4 Matrix{Float64}:
+ 0.0  0.0  0.461538  -0.923077
+ 0.0  0.0  5.53846   -9.07692
+ 0.0  0.0  0.0        0.0
+ 0.0  0.0  0.0        0.0</code></pre>
+</div>
+</div>
+<hr>
+<div id="bb0a49bd" class="cell" data-execution_count="32">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="pp">@show</span> i <span class="op">=</span> <span class="fu">argmax</span>( <span class="fu">abs</span>.(A₃[<span class="op">:</span>,<span class="fl">3</span>]) )</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>U[<span class="fl">3</span>,<span class="op">:</span>] <span class="op">=</span> A₃[i,<span class="op">:</span>]</span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>L[<span class="op">:</span>,<span class="fl">3</span>] <span class="op">=</span> A₃[<span class="op">:</span>,<span class="fl">3</span>]<span class="op">/</span>U[<span class="fl">3</span>,<span class="fl">3</span>]</span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>A₄ <span class="op">=</span> A₃ <span class="op">-</span> L[<span class="op">:</span>,<span class="fl">3</span>]<span class="op">*</span>U[<span class="fl">3</span>,<span class="op">:</span>]<span class="ch">'</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>i = argmax(abs.(A₃[:, 3])) = 2</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="32">
+<pre><code>4×4 Matrix{Float64}:
+ 0.0  0.0  0.0  -0.166667
+ 0.0  0.0  0.0   0.0
+ 0.0  0.0  0.0   0.0
+ 0.0  0.0  0.0   0.0</code></pre>
+</div>
+</div>
+<div id="467735f9" class="cell" data-execution_count="33">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="pp">@show</span> i <span class="op">=</span> <span class="fu">argmax</span>( <span class="fu">abs</span>.(A₄[<span class="op">:</span>,<span class="fl">4</span>]) )</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>U[<span class="fl">4</span>,<span class="op">:</span>] <span class="op">=</span> A₄[i,<span class="op">:</span>]</span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>L[<span class="op">:</span>,<span class="fl">4</span>] <span class="op">=</span> A₄[<span class="op">:</span>,<span class="fl">4</span>]<span class="op">/</span>U[<span class="fl">4</span>,<span class="fl">4</span>];</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>i = argmax(abs.(A₄[:, 4])) = 1</code></pre>
+</div>
+</div>
+<hr>
+<div id="1c42d48b" class="cell" data-execution_count="34">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>A₁ <span class="op">-</span> L<span class="op">*</span>U</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="34">
+<pre><code>4×4 Matrix{Float64}:
+ 0.0  -1.38778e-16  0.0  0.0
+ 0.0   1.38778e-16  0.0  0.0
+ 0.0   0.0          0.0  0.0
+ 0.0   0.0          0.0  0.0</code></pre>
+</div>
+</div>
+<div id="ab4a991d" class="cell" data-execution_count="35">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>U</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="35">
+<pre><code>4×4 Matrix{Float64}:
+ -4.0   5.0   -7.0      -10.0
+  0.0  16.25   0.25      -7.0
+  0.0   0.0    5.53846   -9.07692
+  0.0   0.0    0.0       -0.166667</code></pre>
+</div>
+</div>
+<div id="7cbd7302" class="cell" data-execution_count="36">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>L</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="36">
+<pre><code>4×4 Matrix{Float64}:
+ -0.5    0.153846  0.0833333   1.0
+  0.5   -0.153846  1.0        -0.0
+ -0.25   1.0       0.0        -0.0
+  1.0    0.0       0.0        -0.0</code></pre>
+</div>
+</div>
+<p><span class="math inline">\(\mathbf{L}\)</span> doesn’t have the required lower triangular structure!</p>
+<hr>
+<div class="callout callout-style-default callout-warning no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Theorem: Row pivoting
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The row-pivoted LU factorization runs to completion if and only if the original matrix is invertible.</p>
+</div>
+</div>
+<p>Linear systems with uninvertible matrices have either no solution or infinitely many. We need techniques other than LU factorization to deal with such systems.</p>
+</section>
+<section id="permutations" class="level2">
+<h2 class="anchored" data-anchor-id="permutations">Permutations</h2>
+<p>The <span class="math inline">\(\mathbf{L}\)</span> matrix calculated in the last example is not lower-triangular, but is if we simply reverse the rows. In fact, it will be true in general that the <span class="math inline">\(\mathbf{L}\)</span> calculated will be lower-triangular after a permutation of the rows.</p>
+<p><span data-when-format="pptx">We can think of the algorithm as behaving exactly the original LU factorization technique (without row pivoting) if we reorder the rows of the original matrix in order of the row pivot indices identified in each of the steps. (For our example, this would be putting row 4 at the top, then row 3, then row 2, and then row1.)</span></p>
+<div id="fc76b305" class="cell" data-execution_count="37">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>B <span class="op">=</span> A[ [<span class="fl">4</span>,<span class="fl">3</span>,<span class="fl">2</span>,<span class="fl">1</span>], <span class="op">:</span> ]</span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>L, U <span class="op">=</span> <span class="fu">lufact</span>(B);</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div id="1cf2d7ab" class="cell" data-execution_count="38">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>U</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="38">
+<pre><code>4×4 UpperTriangular{Float64, Matrix{Float64}}:
+ -4.0   5.0   -7.0      -10.0
+   ⋅   16.25   0.25      -7.0
+   ⋅     ⋅     5.53846   -9.07692
+   ⋅     ⋅      ⋅        -0.166667</code></pre>
+</div>
+</div>
+<div id="42bdb49a" class="cell" data-execution_count="39">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>L</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="39">
+<pre><code>4×4 LowerTriangular{Float64, Matrix{Float64}}:
+  1.0     ⋅         ⋅          ⋅ 
+ -0.25   1.0        ⋅          ⋅ 
+  0.5   -0.153846  1.0         ⋅ 
+ -0.5    0.153846  0.0833333  1.0</code></pre>
+</div>
+</div>
+<p><span class="math inline">\(\mathbf{L}\)</span> is the same matrix as before, but with the rows permuted to reverse order!</p>
+<hr>
+<div class="callout callout-style-default callout-warning no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Theorem: PLU factorization
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Given <span class="math inline">\(n \times n\)</span> matrix <span class="math inline">\(\mathbf{A}\)</span>, the <strong>PLU factorization</strong> is a unit lower triangular matrix <span class="math inline">\(\mathbf{L}\)</span>, an upper triangular matrix <span class="math inline">\(\mathbf{U}\)</span>, and a permutation <span class="math inline">\(i_1, \cdots, i_n\)</span> of the integers <span class="math inline">\(1, \cdots, n\)</span> such that <span class="math display">\[\tilde{\mathbf{A}} = \mathbf{L}\mathbf{U},\]</span> where rows <span class="math inline">\(1, \cdots, n\)</span> of <span class="math inline">\(\tilde{\mathbf{A}}\)</span> are rows <span class="math inline">\(i_1, \cdots, i_n\)</span> of <span class="math inline">\(\mathbf{A}\)</span>.</p>
+</div>
+</div>
+<div id="f750a0f2" class="cell" data-execution_count="51">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a><span class="st">    plufact(A)</span></span>
+<span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-4"><a href="#cb61-4" aria-hidden="true" tabindex="-1"></a><span class="st">Compute the PLU factorization of square matrix `A`, returning factors and row permutation.</span></span>
+<span id="cb61-5"><a href="#cb61-5" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span>
+<span id="cb61-6"><a href="#cb61-6" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">plufact</span>(A)</span>
+<span id="cb61-7"><a href="#cb61-7" aria-hidden="true" tabindex="-1"></a>    n <span class="op">=</span> <span class="fu">size</span>(A,<span class="fl">1</span>)</span>
+<span id="cb61-8"><a href="#cb61-8" aria-hidden="true" tabindex="-1"></a>    L,U,p,Ak <span class="op">=</span> <span class="fu">zeros</span>(n,n),<span class="fu">zeros</span>(n,n),<span class="fu">fill</span>(<span class="fl">0</span>,n),<span class="fu">float</span>(<span class="fu">copy</span>(A))</span>
+<span id="cb61-9"><a href="#cb61-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-10"><a href="#cb61-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Reduction by outer products</span></span>
+<span id="cb61-11"><a href="#cb61-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> k <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span>n<span class="op">-</span><span class="fl">1</span></span>
+<span id="cb61-12"><a href="#cb61-12" aria-hidden="true" tabindex="-1"></a>        p[k] <span class="op">=</span> <span class="fu">argmax</span>(<span class="fu">abs</span>.(Ak[<span class="op">:</span>,k]))</span>
+<span id="cb61-13"><a href="#cb61-13" aria-hidden="true" tabindex="-1"></a>        U[k,<span class="op">:</span>] <span class="op">=</span> Ak[p[k],<span class="op">:</span>]</span>
+<span id="cb61-14"><a href="#cb61-14" aria-hidden="true" tabindex="-1"></a>        L[<span class="op">:</span>,k] <span class="op">=</span> Ak[<span class="op">:</span>,k]<span class="op">/</span>U[k,k]</span>
+<span id="cb61-15"><a href="#cb61-15" aria-hidden="true" tabindex="-1"></a>        Ak <span class="op">-=</span> L[<span class="op">:</span>,k]<span class="op">*</span>U[k,<span class="op">:</span>]<span class="ch">'</span></span>
+<span id="cb61-16"><a href="#cb61-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb61-17"><a href="#cb61-17" aria-hidden="true" tabindex="-1"></a>    p[n] <span class="op">=</span> <span class="fu">argmax</span>(<span class="fu">abs</span>.(Ak[<span class="op">:</span>,n]))</span>
+<span id="cb61-18"><a href="#cb61-18" aria-hidden="true" tabindex="-1"></a>    U[n,n] <span class="op">=</span> Ak[p[n],n]</span>
+<span id="cb61-19"><a href="#cb61-19" aria-hidden="true" tabindex="-1"></a>    L[<span class="op">:</span>,n] <span class="op">=</span> Ak[<span class="op">:</span>,n]<span class="op">/</span>U[n,n]</span>
+<span id="cb61-20"><a href="#cb61-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fu">LowerTriangular</span>(L[p,<span class="op">:</span>]),U,p</span>
+<span id="cb61-21"><a href="#cb61-21" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="51">
+<pre><code>plufact</code></pre>
+</div>
+</div>
+</section>
+<section id="linear-systems" class="level2">
+<h2 class="anchored" data-anchor-id="linear-systems">Linear systems</h2>
+<div id="0a4e5bde" class="cell" data-execution_count="52">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a>A <span class="op">=</span> <span class="fu">rand</span>(<span class="fl">1</span><span class="op">:</span><span class="fl">20</span>,<span class="fl">4</span>,<span class="fl">4</span>)</span>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a>L,U,p <span class="op">=</span> <span class="fu">plufact</span>(A)</span>
+<span id="cb63-3"><a href="#cb63-3" aria-hidden="true" tabindex="-1"></a>A[p,<span class="op">:</span>] <span class="op">-</span> L<span class="op">*</span>U</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="52">
+<pre><code>4×4 Matrix{Float64}:
+ 0.0  0.0   0.0          0.0
+ 0.0  0.0   0.0          0.0
+ 0.0  0.0   0.0          0.0
+ 0.0  0.0  -8.88178e-16  3.55271e-15</code></pre>
+</div>
+</div>
+<div id="2a7982a3" class="cell" data-execution_count="53">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">FundamentalsNumericalComputation;</span></span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a>b <span class="op">=</span> <span class="fu">rand</span>(<span class="fl">4</span>)</span>
+<span id="cb65-4"><a href="#cb65-4" aria-hidden="true" tabindex="-1"></a>z <span class="op">=</span> FNC.<span class="fu">forwardsub</span>(L,b[p])</span>
+<span id="cb65-5"><a href="#cb65-5" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> FNC.<span class="fu">backsub</span>(U,z)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="53">
+<pre><code>4-element Vector{Float64}:
+  0.02074712679808451
+  0.029105191666686472
+ -0.0019461283650047195
+ -0.019593097289861985</code></pre>
+</div>
+</div>
+<div id="38a49915" class="cell" data-execution_count="54">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a>b <span class="op">-</span> A<span class="op">*</span>x</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="54">
+<pre><code>4-element Vector{Float64}:
+ 1.1102230246251565e-16
+ 1.1102230246251565e-16
+ 0.0
+ 5.551115123125783e-17</code></pre>
+</div>
+</div>
+</section>
+<section id="stability" class="level2">
+<h2 class="anchored" data-anchor-id="stability">Stability</h2>
+<p>The reason for choosing the largest magnitude pivot during row-pivoting is numerical stability!</p>
+<p>Consider the example <span class="math display">\[\mathbf{A} = \begin{bmatrix} -\epsilon &amp; 1 \\ 1 &amp; -1 \end{bmatrix}.\]</span></p>
+<div id="cf6b1564" class="cell" data-execution_count="56">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a>ϵ <span class="op">=</span> <span class="fl">1e-12</span></span>
+<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a>A <span class="op">=</span> [<span class="op">-</span>ϵ <span class="fl">1</span>; <span class="fl">1</span> <span class="op">-</span><span class="fl">1</span>]</span>
+<span id="cb69-3"><a href="#cb69-3" aria-hidden="true" tabindex="-1"></a>b <span class="op">=</span> A<span class="op">*</span>[<span class="fl">1</span>,<span class="fl">1</span>];</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div id="c2179983" class="cell" data-execution_count="57">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>L,U <span class="op">=</span> <span class="fu">lufact</span>(A)</span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> FNC.<span class="fu">backsub</span>( U, FNC.<span class="fu">forwardsub</span>(L,b) )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="57">
+<pre><code>2-element Vector{Float64}:
+ 0.9999778782798785
+ 1.0</code></pre>
+</div>
+</div>
+<p>We have only five digits of accuracy. This gets even worse if <span class="math inline">\(\epsilon\)</span> is smaller!</p>
+<hr>
+<div id="0875f46d" class="cell" data-execution_count="58">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>ϵ <span class="op">=</span> <span class="fl">1e-20</span></span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a>A <span class="op">=</span> [<span class="op">-</span>ϵ <span class="fl">1</span>; <span class="fl">1</span> <span class="op">-</span><span class="fl">1</span>]</span>
+<span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a>b <span class="op">=</span> A<span class="op">*</span>[<span class="fl">1</span>,<span class="fl">1</span>]</span>
+<span id="cb72-4"><a href="#cb72-4" aria-hidden="true" tabindex="-1"></a>L,U <span class="op">=</span> <span class="fu">lufact</span>(A)</span>
+<span id="cb72-5"><a href="#cb72-5" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> FNC.<span class="fu">backsub</span>( U, FNC.<span class="fu">forwardsub</span>(L,b) )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="58">
+<pre><code>2-element Vector{Float64}:
+ -0.0
+  1.0</code></pre>
+</div>
+</div>
+<p>This is not due to ill-conditioning of the problem – a solution with PLU factorization works perfectly! (PLU factorization is used under the hood in the <code>\</code> operator.)</p>
+<div id="1de90771" class="cell" data-execution_count="59">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a>A<span class="op">\</span>b</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="59">
+<pre><code>2-element Vector{Float64}:
+ 1.0
+ 1.0</code></pre>
+</div>
+</div>
+<!--
+[verbose test]{.content-hidden when-format="revealjs" when-format="pptx"}
+
+::: {.callout-caution icon=false}
+## Exercise: 
+
+:::
+
+<details><summary>Answer:</summary> </details>
+
+
+::: {.callout-note icon=false}
+## Definition: 
+ 
+:::
+
+
+::: {.callout-tip icon=false}
+## Note: 
+ 
+:::
+-->
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
