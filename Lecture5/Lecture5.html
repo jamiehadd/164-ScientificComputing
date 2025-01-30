@@ -1048,6 +1048,71 @@ M2167.08 322.316 L2322.14 322.316 L2322.14 166.796 L2167.08 166.796  Z
 <section id="classical-iterative-methods-for-solving-linear-systems" class="level1">
 <h1>Classical Iterative Methods for Solving Linear Systems</h1>
 <p>We’ve talked a bit last week about <em>direct</em> methods for solving linear systems of equations. There is another class of methods known as <em>iterative methods</em> which use an iterative sequence of steps to make incremental improvement of an approximate solution to the system.</p>
+<p>These methods typically use information from some subset of the system to make iterative improvements to the approximate solution (<strong>iterate</strong>).</p>
+<section id="jacobis-method" class="level2">
+<h2 class="anchored" data-anchor-id="jacobis-method">Jacobi’s Method</h2>
+<p>The first method hinges on the observation that if <span class="math inline">\(\mathbf{A}\mathbf{x} = \mathbf{b}\)</span> then <span class="math display">\[A_{i1}x_1 + A_{i2}x_2 + \cdots + A_{ii}x_i + \cdots + A_{in} x_n = b_i \text{ for } i = 1, \cdots, n.\]</span></p>
+<p>This can be arranged as <span class="math display">\[x_i = \frac{1}{A_{ii}} \left[ \sum_{j = 1\\j\not= i}^n (-A_{ij}x_j) + b_i \right] \text{ for } i=1, \cdots, n.\]</span></p>
+<hr>
+<p>Jacobi’s method uses this observation iteratively, forcing the <span class="math inline">\(i\)</span>th component of the current approximation to satisfy the <span class="math inline">\(i\)</span>th equation, that is <span class="math inline">\(\mathbf{x}^{(k)}\)</span> satisfies <span class="math display">\[x_i^{(k)} = \frac{1}{A_{ii}} \left[ \sum_{j = 1\\j\not= i}^n (-A_{ij}x_j^{(k-1)}) + b_i \right] \text{ for } i=1, \cdots, n.\]</span></p>
+<div class="callout callout-style-default callout-caution no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Exercise: Sketch Jacobi’s method
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Sketch two iterations of Jacobi’s method applied to the system visualized below with the given initial iterate, <span class="math inline">\(\mathbf{x}^{(0)}\)</span>.</p>
+</div>
+</div>
+<details>
+<summary>
+System:
+</summary>
+<img src="figs/system_empty.png" height="200">
+</details>
+<details>
+<summary>
+Answer:
+</summary>
+<img src="figs/jacobi_steps.png" height="200">
+</details>
+<p><span data-when-format="pptx">You should also think about what happens here if the order of the equations is changed or if the initial iterate is somewhere else. Spoiler alert: Jacobi’s method doesn’t always converge!</span></p>
+</section>
+<section id="matrix-vector-form-of-jacobi-update" class="level2">
+<h2 class="anchored" data-anchor-id="matrix-vector-form-of-jacobi-update">Matrix-vector form of Jacobi update</h2>
+<p>We can collect all of the updates to the coordinates of <span class="math inline">\(\mathbf{x}^{(k)}\)</span> together into a vector update.</p>
+<p>Note that we can rewrite <span class="math inline">\(\mathbf{A}\mathbf{x} = \mathbf{b}\)</span> as <span class="math display">\[\mathbf{D}(\mathbf{A})\mathbf{x} + \mathbf{L}(\mathbf{A})\mathbf{x} + \mathbf{U}(\mathbf{A})\mathbf{x} = \mathbf{b}\]</span> where <span class="math inline">\(\mathbf{D}(\mathbf{A})\)</span> is the diagonal matrix containing the diagonal elements of <span class="math inline">\(\mathbf{A}\)</span>, <span class="math inline">\(\mathbf{L}(\mathbf{A})\)</span> is the strictly lower-triangular matrix containing the strictly lower-triangular elements of <span class="math inline">\(\mathbf{A}\)</span>, and <span class="math inline">\(\mathbf{U}(\mathbf{A})\)</span> is the strictly upper-triangular matrix containing the strictly upper-triangular elements of <span class="math inline">\(\mathbf{A}\)</span>.</p>
+<p>In this notation, the Jacobi iterates satisfy <span class="math display">\[\mathbf{D}(\mathbf{A})\mathbf{x}^{(k)} + [\mathbf{L}(\mathbf{A}) + \mathbf{U}(\mathbf{A})] \mathbf{x}^{(k-1)} = \mathbf{b} \]</span></p>
+<p>and so, <span class="math display">\[\mathbf{x}^{(k)} = -\mathbf{D}(\mathbf{A})^{-1} [\mathbf{L}(\mathbf{A}) + \mathbf{U}(\mathbf{A})] \mathbf{x}^{(k-1)} + \mathbf{D}(\mathbf{A})^{-1} \mathbf{b}.\]</span></p>
+<hr>
+<div id="0b470dbf" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="st">    jacobi(A,b,x_0,N)</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="st">Run N iterations of Jacobi's method on system Ax=b with initial iterate x_0.</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">jacobi</span>(A,b,x_0,N,x_true)</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>    D <span class="op">=</span> <span class="fu">Diagonal</span>(A);</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>    L <span class="op">=</span> <span class="fu">tril</span>(A,<span class="op">-</span><span class="fl">1</span>);</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>    U <span class="op">=</span> <span class="fu">triu</span>(A,<span class="fl">1</span>);</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> x_0</span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>    errs <span class="op">=</span> [<span class="fu">norm</span>(x <span class="op">-</span> x_true)]</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span>N</span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> <span class="fu">D\</span>(<span class="fu">-</span>(L<span class="op">+</span>U)<span class="op">*</span>x <span class="op">+</span> b);</span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>        <span class="fu">append</span>(errs, <span class="fu">norm</span>(x <span class="op">-</span> x_true))</span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> x, errs</span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
 </section>
 
 </main>
