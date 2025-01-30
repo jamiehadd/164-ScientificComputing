@@ -1120,11 +1120,60 @@ M2167.08 322.316 L2322.14 322.316 L2322.14 166.796 L2167.08 166.796  Z
 </div>
 </div>
 </section></section>
+<section>
 <section id="classical-iterative-methods-for-solving-linear-systems" class="title-slide slide level1 center">
 <h1>Classical Iterative Methods for Solving Linear Systems</h1>
 <p>We’ve talked a bit last week about <em>direct</em> methods for solving linear systems of equations. There is another class of methods known as <em>iterative methods</em> which use an iterative sequence of steps to make incremental improvement of an approximate solution to the system.</p>
-
+<div class="fragment">
+<p>These methods typically use information from some subset of the system to make iterative improvements to the approximate solution (<strong>iterate</strong>).</p>
+</div>
 </section>
+<section id="jacobis-method" class="slide level2">
+<h2>Jacobi’s Method</h2>
+<p>The first method hinges on the observation that if <span class="math inline">\(\mathbf{A}\mathbf{x} = \mathbf{b}\)</span> then <span class="math display">\[A_{i1}x_1 + A_{i2}x_2 + \cdots + A_{ii}x_i + \cdots + A_{in} x_n = b_i \text{ for } i = 1, \cdots, n.\]</span></p>
+<div class="fragment">
+<p>This can be arranged as <span class="math display">\[x_i = \frac{1}{A_{ii}} \left[ \sum_{j = 1\\j\not= i}^n (-A_{ij}x_j) + b_i \right] \text{ for } i=1, \cdots, n.\]</span></p>
+</div>
+</section>
+<section class="slide level2">
+
+<p>Jacobi’s method uses this observation iteratively, forcing the <span class="math inline">\(i\)</span>th component of the current approximation to satisfy the <span class="math inline">\(i\)</span>th equation, that is <span class="math inline">\(\mathbf{x}^{(k)}\)</span> satisfies <span class="math display">\[x_i^{(k)} = \frac{1}{A_{ii}} \left[ \sum_{j = 1\\j\not= i}^n (-A_{ij}x_j^{(k-1)}) + b_i \right] \text{ for } i=1, \cdots, n.\]</span></p>
+<div class="fragment">
+<div class="callout callout-caution no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Exercise: Sketch Jacobi’s method</strong></p>
+</div>
+<div class="callout-content">
+<p>Sketch two iterations of Jacobi’s method applied to the system visualized below with the given initial iterate, <span class="math inline">\(\mathbf{x}^{(0)}\)</span>.</p>
+</div>
+</div>
+</div>
+<details>
+<summary>
+System:
+</summary>
+<img data-src="figs/system_empty.png" height="200">
+</details>
+<details>
+<summary>
+Answer:
+</summary>
+<img data-src="figs/jacobi_steps.png" height="200">
+</details>
+</div>
+</section>
+<section id="matrix-vector-form-of-jacobi-update" class="slide level2">
+<h2>Matrix-vector form of Jacobi update</h2>
+<p>We can collect all of the updates to the coordinates of <span class="math inline">\(\mathbf{x}^{(k)}\)</span> together into a vector update.</p>
+<div class="fragment">
+<p>Note that we can rewrite <span class="math inline">\(\mathbf{A}\mathbf{x} = \mathbf{b}\)</span> as <span class="math display">\[\mathbf{D}(\mathbf{A})\mathbf{x} + \mathbf{L}(\mathbf{A})\mathbf{x} + \mathbf{U}(\mathbf{A})\mathbf{x} = \mathbf{b}\]</span> where <span class="math inline">\(\mathbf{D}(\mathbf{A})\)</span> is the diagonal matrix containing the diagonal elements of <span class="math inline">\(\mathbf{A}\)</span>, <span class="math inline">\(\mathbf{L}(\mathbf{A})\)</span> is the strictly lower-triangular matrix containing the strictly lower-triangular elements of <span class="math inline">\(\mathbf{A}\)</span>, and <span class="math inline">\(\mathbf{U}(\mathbf{A})\)</span> is the strictly upper-triangular matrix containing the strictly upper-triangular elements of <span class="math inline">\(\mathbf{A}\)</span>.</p>
+</div>
+<div class="fragment">
+<p>In this notation, the Jacobi iterates satisfy <span class="math display">\[\mathbf{D}(\mathbf{A})\mathbf{x} + \mathbf{L}(\mathbf{A})\mathbf{x} + \mathbf{U}(\mathbf{A})\mathbf{x} = \mathbf{b}\]</span></p>
+
+</div>
+</section></section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
 <p><img src="figs/hmc.png" class="slide-logo"></p>
