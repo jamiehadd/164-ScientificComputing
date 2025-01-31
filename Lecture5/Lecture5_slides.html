@@ -1418,6 +1418,36 @@ Answer:
 <pre><code>gaussseidel</code></pre>
 </div>
 </div>
+</section>
+<section id="kaczmarz-method" class="slide level2">
+<h2>Kaczmarz method</h2>
+<p>The Jacobi and Gauss-Seidel methods update using individual coordinate direction updates onto the hyperplanes defined by the individual equations. This is not the only way that the iterates can move towards these hyperplanes!</p>
+<div class="fragment">
+<p>Perhaps the most natural updating strategy is to project each iterate onto a hyperplane to produce the subsequent iterate. This strategy is known as the <em>Kaczmarz method</em>.</p>
+<p><img data-src="figs/kaczmarz_steps.png" height="300"></p>
+</div>
+<div class="fragment">
+<p>The update for this type of method is given by <span class="math inline">\(\mathbf{x}^{(k)} = \mathbf{x}^{(k-1)} + \frac{b_i - \mathbf{a}_i^\top \mathbf{x}^{(k-1)}}{\|\mathbf{a}_i\|^2} \mathbf{a}_i\)</span> where <span class="math inline">\(\mathbf{a}_i\)</span> is the <span class="math inline">\(i\)</span>th row of <span class="math inline">\(\mathbf{A}\)</span> and <span class="math inline">\(i\)</span> is chosen from <span class="math inline">\(1, \cdots, n\)</span>.</p>
+</div>
+</section>
+<section id="section" class="slide level2">
+<h2></h2>
+<div class="callout callout-caution no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Exercise: Decreasing error</strong></p>
+</div>
+<div class="callout-content">
+<p>If <span class="math inline">\(\mathbf{x}^*\)</span> satisfies <span class="math inline">\(\mathbf{A}\mathbf{x}^* = \mathbf{b}\)</span>, then <span class="math display">\[\|\mathbf{x}^{(k)} - \mathbf{x}^*\|_2 \le \|\mathbf{x}^{(k-1)} - \mathbf{x}^*\|_2.\]</span> Show that this is true!</p>
+</div>
+</div>
+</div>
+<details>
+<summary>
+Answer:
+</summary>
+Note that <span class="math inline">\(\mathbf{x}^*\)</span> lies in the intersection of all hyperplane solution sets, and the three vector <span class="math inline">\(\mathbf{x}^{(k)} - \mathbf{x}^*\)</span>, <span class="math inline">\(\mathbf{x}^{(k-1)} - \mathbf{x}^*\)</span>, and <span class="math inline">\(\mathbf{x}^{(k)} - \mathbf{x}^{(k-1)}\)</span> form the edges of a right triangle. By the Pythagorean theorem, we have <span class="math display">\[\|\mathbf{x}^{(k-1)} - \mathbf{x}^*\|^2 = \|\mathbf{x}^{(k)} - \mathbf{x}^*\|^2 + \|\mathbf{x}^{(k)} - \mathbf{x}^{(k-1)}\|^2.\]</span> The result follows since <span class="math inline">\(\|\mathbf{x}^{(k)} - \mathbf{x}^{(k-1)}\|^2 \ge 0\)</span>.
+</details>
 
 </section></section>
     </div>
