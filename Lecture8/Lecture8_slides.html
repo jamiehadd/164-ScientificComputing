@@ -299,7 +299,14 @@ Proof:
 <p><strong>Theorem: Orthogonal matrix</strong></p>
 </div>
 <div class="callout-content">
-<p>Suppose <span class="math inline">\(\mathbf{Q}\)</span> is an <span class="math inline">\(n \times n\)</span> real orthogonal matrix. Then 1. <span class="math inline">\(\mathbf{Q}^\top = \mathbf{Q}^{-1}\)</span> 2. <span class="math inline">\(\mathbf{Q}^\top\)</span> is also an orthogonal matrix 3. <span class="math inline">\(\kappa(\mathbf{Q}) = 1\)</span> in the 2-norm 4. For any othre <span class="math inline">\(n \times n\)</span> matrix <span class="math inline">\(\mathbf{A}\)</span>, <span class="math inline">\(\|\mathbf{A}\mathbf{Q}\|_2 = \|\mathbf{A}\|_2\)</span> 5. If <span class="math inline">\(\mathbf{U}\)</span> is another <span class="math inline">\(n \times n\)</span> orthogonal matrix, then <span class="math inline">\(\mathbf{Q}\mathbf{U}\)</span> is also orthogonal.</p>
+<p>Suppose <span class="math inline">\(\mathbf{Q}\)</span> is an <span class="math inline">\(n \times n\)</span> real orthogonal matrix. Then</p>
+<ol type="1">
+<li class="fragment"><span class="math inline">\(\mathbf{Q}^\top = \mathbf{Q}^{-1}\)</span></li>
+<li class="fragment"><span class="math inline">\(\mathbf{Q}^\top\)</span> is also an orthogonal matrix</li>
+<li class="fragment"><span class="math inline">\(\kappa(\mathbf{Q}) = 1\)</span> in the 2-norm</li>
+<li class="fragment">For any othre <span class="math inline">\(n \times n\)</span> matrix <span class="math inline">\(\mathbf{A}\)</span>, <span class="math inline">\(\|\mathbf{A}\mathbf{Q}\|_2 = \|\mathbf{A}\|_2\)</span></li>
+<li class="fragment">If <span class="math inline">\(\mathbf{U}\)</span> is another <span class="math inline">\(n \times n\)</span> orthogonal matrix, then <span class="math inline">\(\mathbf{Q}\mathbf{U}\)</span> is also orthogonal.</li>
+</ol>
 </div>
 </div>
 </div>
@@ -347,7 +354,7 @@ Proof:
 </section>
 <section class="slide level2">
 
-<div id="53119390" class="cell" data-execution_count="22">
+<div id="53119390" class="cell" data-execution_count="39">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href=""></a>A <span class="op">=</span> <span class="fu">rand</span>(<span class="fl">1</span>.<span class="op">:</span><span class="fl">9</span>.,<span class="fl">6</span>,<span class="fl">4</span>)</span>
@@ -357,7 +364,7 @@ Proof:
 <pre><code>(m, n) = size(A) = (6, 4)</code></pre>
 </div>
 </div>
-<div id="8897a983" class="cell" data-execution_count="23">
+<div id="8897a983" class="cell" data-execution_count="40">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href=""></a><span class="im">using</span> <span class="bu">LinearAlgebra</span></span>
@@ -365,38 +372,38 @@ Proof:
 <span id="cb3-3"><a href=""></a>Q,R <span class="op">=</span> <span class="fu">qr</span>(A);</span>
 <span id="cb3-4"><a href=""></a>Q</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="23">
+<div class="cell-output cell-output-display">
 <pre><code>6×6 LinearAlgebra.QRCompactWYQ{Float64, Matrix{Float64}, Matrix{Float64}}</code></pre>
 </div>
 </div>
-<div id="2c1f5b66" class="cell" data-execution_count="24">
+<div id="2c1f5b66" class="cell" data-execution_count="41">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href=""></a>R</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="24">
+<div class="cell-output cell-output-display">
 <pre><code>4×4 Matrix{Float64}:
- -16.4012  -10.7919   -10.548    -4.69477
-   0.0      -6.74799   -1.65491  -5.97728
-   0.0       0.0        5.00011   3.51747
-   0.0       0.0        0.0       0.926656</code></pre>
+ -9.21954  -8.89415  -9.32801  -14.3174
+  0.0      -9.63816  -8.71902   -4.11477
+  0.0       0.0       8.42419    6.95263
+  0.0       0.0       0.0       -7.46601</code></pre>
 </div>
 </div>
 <div class="fragment">
-<p>Strangely, <span class="math inline">\(\mathbf{Q}\)</span> is <span class="math inline">\(6 \times 6\)</span> (full QR) and <span class="math inline">\(\mathbf{R}\)</span> is <span class="math inline">\(4 \times 4\)</span> (thin QR). Howevver, <span class="math inline">\(\mathbf{Q}\)</span> is given in a nonstandard form and converting to a standard matrix will recover the thin QR <span class="math inline">\(\hat{\mathbf{Q}}\)</span>.</p>
-<div id="eb53a034" class="cell" data-execution_count="25">
+<p>Strangely, <span class="math inline">\(\mathbf{Q}\)</span> is <span class="math inline">\(6 \times 6\)</span> (full QR) and <span class="math inline">\(\mathbf{R}\)</span> is <span class="math inline">\(4 \times 4\)</span> (thin QR). However, <span class="math inline">\(\mathbf{Q}\)</span> is given in a nonstandard form and converting to a standard matrix will recover the thin QR <span class="math inline">\(\hat{\mathbf{Q}}\)</span>.</p>
+<div id="eb53a034" class="cell" data-execution_count="42">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><a href=""></a>Q̂ <span class="op">=</span> <span class="fu">Matrix</span>(Q)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="25">
+<div class="cell-output cell-output-display">
 <pre><code>6×4 Matrix{Float64}:
- -0.54874    0.284816   0.136645   -0.382483
- -0.182913  -0.300241   0.914733    0.139313
- -0.182913  -0.89301   -0.281437   -0.222907
- -0.54874    0.136623  -0.112399   -0.393041
- -0.487769   0.039114  -0.216046    0.759469
- -0.304855  -0.105222  -0.0779476   0.230949</code></pre>
+ -0.867722   0.178213    -0.0641336   0.434546
+ -0.325396  -0.0109857    0.103146   -0.34541
+ -0.108465  -0.833696    -0.270741    0.147474
+ -0.325396  -0.0109857   -0.252971   -0.810981
+ -0.108465  -0.00366191   0.825754   -0.0925295
+ -0.108465  -0.522433     0.407533   -0.0621405</code></pre>
 </div>
 </div>
 </div>
@@ -404,22 +411,22 @@ Proof:
 <section class="slide level2">
 
 <p><span class="math inline">\(\mathbf{Q}\)</span> is an orthogonal matrix and <span class="math inline">\(\hat{\mathbf{Q}}\)</span> is an ONC matrix.</p>
-<div id="0d5045ab" class="cell" data-execution_count="26">
+<div id="0d5045ab" class="cell" data-execution_count="43">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb9-1"><a href=""></a><span class="fu">opnorm</span>(Q<span class="op">'*</span>Q <span class="op">-</span> I)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="26">
-<pre><code>7.451145070743261e-16</code></pre>
+<div class="cell-output cell-output-display">
+<pre><code>7.784676762789553e-16</code></pre>
 </div>
 </div>
-<div id="cb9a5e56" class="cell" data-execution_count="27">
+<div id="cb9a5e56" class="cell" data-execution_count="44">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb11-1"><a href=""></a><span class="fu">opnorm</span>(Q̂<span class="ch">'*Q̂ - I)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="27">
-<pre><code>6.932657863084677e-16</code></pre>
+<div class="cell-output cell-output-display">
+<pre><code>4.980709636773836e-16</code></pre>
 </div>
 </div>
 </section>
@@ -446,7 +453,7 @@ Proof:
 <section class="slide level2">
 
 <p>This algorithm is essentially what is implemented in the Julia <code>\</code> operator.</p>
-<div id="32349c45" class="cell" data-execution_count="29">
+<div id="32349c45" class="cell" data-execution_count="46">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb13-1"><a href=""></a><span class="st">"""</span></span>
@@ -460,12 +467,12 @@ Proof:
 <span id="cb13-9"><a href=""></a>    <span class="cf">return</span> x</span>
 <span id="cb13-10"><a href=""></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="29">
+<div class="cell-output cell-output-display">
 <pre><code>lsqrfact</code></pre>
 </div>
 </div>
 <p>Recall previously we saw that the normal equations can be unstable – this method doesn’t change that fact, but allows us to solve them up to the loss of accuracy predicted due to the instability.</p>
-<div id="e4d7ea9f" class="cell" data-execution_count="30">
+<div id="e4d7ea9f" class="cell" data-execution_count="47">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb15-1"><a href=""></a>t <span class="op">=</span> <span class="fu">range</span>(<span class="fl">0</span>,<span class="fl">3</span>,length<span class="op">=</span><span class="fl">400</span>)</span>
@@ -475,7 +482,7 @@ Proof:
 <span id="cb15-5"><a href=""></a>b <span class="op">=</span> A<span class="op">*</span>x;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<div id="3a768706" class="cell" data-execution_count="31">
+<div id="3a768706" class="cell" data-execution_count="48">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb16-1"><a href=""></a>observed_error <span class="op">=</span> <span class="fu">norm</span>(<span class="fu">lsqrfact</span>(A,b) <span class="op">-</span> x)<span class="op">/</span><span class="fu">norm</span>(x);</span>
@@ -484,8 +491,8 @@ Proof:
 <span id="cb16-4"><a href=""></a><span class="pp">@show</span> error_bound <span class="op">=</span> <span class="fu">κ*eps</span>();</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>observed_error = 4.665273501889628e-9
-error_bound = κ * eps() = 4.053030228488391e-9</code></pre>
+<pre><code>observed_error = 6.4042143577854036e-9
+error_bound = κ * eps() = 4.053030227715619e-9</code></pre>
 </div>
 </div>
 </section></section>
@@ -531,7 +538,9 @@ error_bound = κ * eps() = 4.053030228488391e-9</code></pre>
 <section class="slide level2">
 
 <p>Now, we may choose <span class="math inline">\(\mathbf{v}\)</span> so that this reflection <span class="math inline">\(\mathbf{P}\mathbf{z}\)</span> is very sparse. In fact, we choose <span class="math inline">\(\mathbf{v}\)</span> so that <span class="math display">\[\mathbf{P}\mathbf{z} = \begin{bmatrix} \pm \|\mathbf{z}\| \\ 0 \\ \vdots \\ 0 \end{bmatrix} = \pm \|\mathbf{z}\| \mathbf{e}_1.\]</span></p>
-<div class="fragment">
+</section>
+<section class="slide level2">
+
 <div class="callout callout-warning no-icon callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
@@ -539,6 +548,201 @@ error_bound = κ * eps() = 4.053030228488391e-9</code></pre>
 </div>
 <div class="callout-content">
 <p>If <span class="math inline">\(\mathbf{w} = \|\mathbf{z}\| \mathbf{e}_1 - \mathbf{z}\)</span> and <span class="math inline">\(\mathbf{v} = \mathbf{w}/\|\mathbf{w}\|\)</span> then <span class="math display">\[\mathbf{P}\mathbf{z} = \|\mathbf{z}\| \mathbf{e}_1.\]</span></p>
+</div>
+</div>
+</div>
+<details>
+<summary>
+Proof:
+</summary>
+Note that <span class="math display">\[\begin{align*}
+\mathbf{w}^\top \mathbf{w} &amp;= 2\|\mathbf{z}\|^2 - 2\|\mathbf{z}\|z_1\\
+\mathbf{w}^\top \mathbf{z} &amp;= \|\mathbf{z}\| z_1 - \|\mathbf{z}\|^2,
+\end{align*}\]</span> and thus, <span class="math display">\[\mathbf{P}\mathbf{z} = \mathbf{z} - 2 (\mathbf{v}^\top \mathbf{z}) \mathbf{v} = \mathbf{z} - 2 \frac{\mathbf{w}^\top \mathbf{z}}{\mathbf{w}^\top \mathbf{w}} \mathbf{w} = \mathbf{z} - 2 \frac{\|\mathbf{z}\| z_1 - \|\mathbf{z}\|^2}{2\|\mathbf{z}\|^2 - 2\|\mathbf{z}\|z_1} \mathbf{w} = \mathbf{z} + \mathbf{w} = \|\mathbf{z}\|\mathbf{e}_1.\]</span>
+</details>
+</section>
+<section id="factorization-algorithm-demo" class="slide level2">
+<h2>Factorization algorithm demo</h2>
+<div id="dedd9d95" class="cell" data-execution_count="49">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb18-1"><a href=""></a>A <span class="op">=</span> <span class="fu">rand</span>(<span class="fu">float</span>(<span class="fl">1</span><span class="op">:</span><span class="fl">9</span>),<span class="fl">6</span>,<span class="fl">4</span>)</span>
+<span id="cb18-2"><a href=""></a>m,n <span class="op">=</span> <span class="fu">size</span>(A)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<pre><code>(6, 4)</code></pre>
+</div>
+</div>
+<div id="12e2d51a" class="cell" data-execution_count="50">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb20-1"><a href=""></a>z <span class="op">=</span> A[<span class="op">:</span>,<span class="fl">1</span>];</span>
+<span id="cb20-2"><a href=""></a>v <span class="op">=</span> <span class="fu">normalize</span>(z <span class="op">-</span> <span class="fu">norm</span>(z)<span class="op">*</span>[<span class="fl">1</span>;<span class="fu">zeros</span>(m<span class="op">-</span><span class="fl">1</span>)])</span>
+<span id="cb20-3"><a href=""></a>P₁ <span class="op">=</span> I <span class="op">-</span> <span class="fl">2</span>v<span class="op">*</span>v<span class="op">'</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<pre><code>6×6 Matrix{Float64}:
+ 0.263117   0.613941   0.175412    0.526235   0.350823    0.350823
+ 0.613941   0.48849   -0.146146   -0.438437  -0.292292   -0.292292
+ 0.175412  -0.146146   0.958244   -0.125268  -0.0835119  -0.0835119
+ 0.526235  -0.438437  -0.125268    0.624196  -0.250536   -0.250536
+ 0.350823  -0.292292  -0.0835119  -0.250536   0.832976   -0.167024
+ 0.350823  -0.292292  -0.0835119  -0.250536  -0.167024    0.832976</code></pre>
+</div>
+</div>
+<div id="66663c97" class="cell" data-execution_count="51">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb22-1"><a href=""></a>P₁<span class="op">*</span>z</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<pre><code>6-element Vector{Float64}:
+ 11.401754250991381
+  0.0
+  0.0
+  4.440892098500626e-16
+ -4.440892098500626e-16
+ -4.440892098500626e-16</code></pre>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<p>Now we recurse! We redefine <span class="math inline">\(\mathbf{A}\)</span> and work on the submatrix that does not include its first row or column.</p>
+<div id="ec40df16" class="cell" data-execution_count="52">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb24-1"><a href=""></a>A <span class="op">=</span> P₁<span class="op">*</span>A</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<pre><code>6×4 Matrix{Float64}:
+ 11.4018       12.1911     9.99846  11.8403
+  0.0          -1.8245    -1.4982   -1.86589
+ -1.11022e-16   6.05014    2.28623  -0.390253
+  0.0           0.150431   5.85869   4.82924
+  0.0           1.10029    2.57246   0.219493
+  0.0           1.10029    2.57246   4.21949</code></pre>
+</div>
+</div>
+<div id="43c26a75" class="cell" data-execution_count="53">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb26-1"><a href=""></a>z <span class="op">=</span> A[<span class="fl">2</span><span class="op">:</span>m,<span class="fl">2</span>]</span>
+<span id="cb26-2"><a href=""></a>v <span class="op">=</span> <span class="fu">normalize</span>(z <span class="op">-</span> <span class="fu">norm</span>(z)<span class="op">*</span>[<span class="fl">1</span>;<span class="fu">zeros</span>(m<span class="op">-</span><span class="fl">2</span>)])</span>
+<span id="cb26-3"><a href=""></a>P₂ <span class="op">=</span> I <span class="op">-</span> <span class="fl">2</span>v<span class="op">*</span>v<span class="op">'</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<pre><code>5×5 Matrix{Float64}:
+ -0.280271    0.929396    0.0231086    0.169021     0.169021
+  0.929396    0.325317   -0.0167754   -0.122699    -0.122699
+  0.0231086  -0.0167754   0.999583    -0.00305079  -0.00305079
+  0.169021   -0.122699   -0.00305079   0.977686    -0.0223142
+  0.169021   -0.122699   -0.00305079  -0.0223142    0.977686</code></pre>
+</div>
+</div>
+<div id="7a5f20a6" class="cell" data-execution_count="54">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb28-1"><a href=""></a>A[<span class="fl">2</span><span class="op">:</span>m,<span class="op">:</span>] <span class="op">=</span> P₂<span class="op">*</span>A[<span class="fl">2</span><span class="op">:</span>m,<span class="op">:</span>]</span>
+<span id="cb28-2"><a href=""></a>A</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<pre><code>6×4 Matrix{Float64}:
+ 11.4018       12.1911        9.99846  11.8403
+ -1.03184e-16   6.50976       3.5497    1.02213
+ -3.61174e-17   1.5525e-15   -1.37823  -2.48678
+  1.86244e-18   3.75082e-17   5.76758   4.77711
+  1.36223e-17   1.25457e-16   1.90604  -0.161783
+  1.36223e-17   2.7015e-16    1.90604   3.83822</code></pre>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<div id="b3900530" class="cell" data-execution_count="55">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb30-1"><a href=""></a><span class="cf">for</span> j <span class="kw">in</span> <span class="fl">3</span><span class="op">:</span>n</span>
+<span id="cb30-2"><a href=""></a>    z <span class="op">=</span> A[j<span class="op">:</span>m,j]</span>
+<span id="cb30-3"><a href=""></a>    v <span class="op">=</span> <span class="fu">normalize</span>(z <span class="op">-</span> <span class="fu">norm</span>(z)<span class="op">*</span>[<span class="fl">1</span>;<span class="fu">zeros</span>(m<span class="op">-</span>j)])</span>
+<span id="cb30-4"><a href=""></a>    P <span class="op">=</span> I <span class="op">-</span> <span class="fl">2</span>v<span class="op">*</span>v<span class="op">'</span></span>
+<span id="cb30-5"><a href=""></a>    A[j<span class="op">:</span>m,<span class="op">:</span>] <span class="op">=</span> P<span class="op">*</span>A[j<span class="op">:</span>m,<span class="op">:</span>]</span>
+<span id="cb30-6"><a href=""></a><span class="cf">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div id="f833da28" class="cell" data-execution_count="56">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb31-1"><a href=""></a>R <span class="op">=</span> <span class="fu">triu</span>(A)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<pre><code>6×4 Matrix{Float64}:
+ 11.4018  12.1911   9.99846  11.8403
+  0.0      6.50976  3.5497    1.02213
+  0.0      0.0      6.51386   5.83174
+  0.0      0.0      0.0       3.12311
+  0.0      0.0      0.0       0.0
+  0.0      0.0      0.0       0.0</code></pre>
+</div>
+</div>
+<p>Now, note that we didn’t explicitly build <span class="math inline">\(\hat{\mathbf{Q}}\)</span> here. <span class="math inline">\(\hat{\mathbf{Q}}\)</span> is derived from the products of the Householder reflectors, but these matrices are getting smaller as they only need to act on a submatrix of <span class="math inline">\(\mathbf{A}\)</span>. To explicitly build <span class="math inline">\(\hat{\mathbf{Q}}\)</span>, we have to pad out the Householder reflectors <span class="math inline">\(\mathbf{P}_k\)</span> to make them appropriately sized.</p>
+</section>
+<section class="slide level2">
+
+<p>Define <span class="math inline">\(\mathbf{Q}_k = \begin{bmatrix} \mathbf{I}_{k-1} &amp; \mathbf{0} \\ \mathbf{0} &amp; \mathbf{P}_k \end{bmatrix}\)</span>. First, note that <span class="math inline">\(\mathbf{Q}_k\)</span> is orthogonal and that <span class="math display">\[\mathbf{Q}_n \mathbf{Q}_{n-1} \cdots \mathbf{Q}_1 \mathbf{A} = \mathbf{R}.\]</span> Thus, we have that <span class="math inline">\(\mathbf{Q}^\top = \mathbf{Q}_n \mathbf{Q}_{n-1} \cdots \mathbf{Q}_1\)</span>. Now, rather than explicitly building these <span class="math inline">\(\mathbf{Q}_k\)</span> matrices explicitly and constructing their product, we can simply begin from <span class="math inline">\(\mathbf{I}\)</span> and do the actions of the <span class="math inline">\(\mathbf{Q}_k\)</span> matrices (the <span class="math inline">\(\mathbf{P}_k\)</span> matrices) in the same way we did on <span class="math inline">\(\mathbf{A}\)</span>.</p>
+</section>
+<section class="slide level2">
+
+<div id="bc859ecb" class="cell" data-execution_count="57">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb33-1"><a href=""></a><span class="st">"""</span></span>
+<span id="cb33-2"><a href=""></a><span class="st">    qrfact(A)</span></span>
+<span id="cb33-3"><a href=""></a><span class="st">QR factorization by Householder reflections.  Returns Q and R.</span></span>
+<span id="cb33-4"><a href=""></a><span class="st">"""</span></span>
+<span id="cb33-5"><a href=""></a><span class="kw">function</span> <span class="fu">qrfact</span>(A)</span>
+<span id="cb33-6"><a href=""></a>    m,n <span class="op">=</span> <span class="fu">size</span>(A)</span>
+<span id="cb33-7"><a href=""></a>    Qt <span class="op">=</span> <span class="fu">diagm</span>(<span class="fu">ones</span>(m))</span>
+<span id="cb33-8"><a href=""></a>    R <span class="op">=</span> <span class="fu">float</span>(<span class="fu">copy</span>(A))</span>
+<span id="cb33-9"><a href=""></a>    <span class="cf">for</span> k <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span>n</span>
+<span id="cb33-10"><a href=""></a>        z <span class="op">=</span> R[k<span class="op">:</span>m,k]</span>
+<span id="cb33-11"><a href=""></a>        w <span class="op">=</span> [ <span class="fu">-sign</span>(z[<span class="fl">1</span>])<span class="fu">*norm</span>(z) <span class="op">-</span> z[<span class="fl">1</span>]; <span class="op">-</span>z[<span class="fl">2</span><span class="op">:</span><span class="kw">end</span>] ]</span>
+<span id="cb33-12"><a href=""></a>        nrmw <span class="op">=</span> <span class="fu">norm</span>(w)</span>
+<span id="cb33-13"><a href=""></a>        <span class="cf">if</span> nrmw <span class="op">&lt;</span> <span class="fu">eps</span>() <span class="cf">continue</span>; <span class="cf">end</span>  <span class="co">#skip this iteration</span></span>
+<span id="cb33-14"><a href=""></a>        v <span class="op">=</span> w <span class="op">/</span> nrmw;</span>
+<span id="cb33-15"><a href=""></a>        <span class="co"># Apply the reflection to each relevant column of A and Q</span></span>
+<span id="cb33-16"><a href=""></a>        <span class="cf">for</span> j <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span>n</span>
+<span id="cb33-17"><a href=""></a>            R[k<span class="op">:</span>m,j] <span class="op">-=</span> <span class="fu">v*</span>( <span class="fl">2</span><span class="fu">*</span>(v<span class="op">'*</span>R[k<span class="op">:</span>m,j]) )</span>
+<span id="cb33-18"><a href=""></a>        <span class="cf">end</span></span>
+<span id="cb33-19"><a href=""></a>        <span class="cf">for</span> j <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span>m</span>
+<span id="cb33-20"><a href=""></a>            Qt[k<span class="op">:</span>m,j] <span class="op">-=</span> <span class="fu">v*</span>( <span class="fl">2</span><span class="fu">*</span>(v<span class="op">'*</span>Qt[k<span class="op">:</span>m,j]) )</span>
+<span id="cb33-21"><a href=""></a>        <span class="cf">end</span></span>
+<span id="cb33-22"><a href=""></a>    <span class="cf">end</span></span>
+<span id="cb33-23"><a href=""></a>    <span class="cf">return</span> Qt<span class="op">'</span>, <span class="fu">triu</span>(R)</span>
+<span id="cb33-24"><a href=""></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<pre><code>qrfact</code></pre>
+</div>
+</div>
+</section>
+<section id="q-less-qr" class="slide level2">
+<h2>Q-less QR</h2>
+<p>Now, note that in many applications we don’t explicitly need the matrix <span class="math inline">\(\mathbf{Q}\)</span>.</p>
+<div class="fragment">
+<p>For instance, in least-squares, we only need <span class="math inline">\(\mathbf{Q}^\top \mathbf{b}\)</span>. We don’t actually need <span class="math inline">\(\mathbf{Q}^\top\)</span>, we just need the image of <span class="math inline">\(\mathbf{b}\)</span> under <span class="math inline">\(\mathbf{Q}^\top\)</span> as an operator! This is an important topic in scientific computing – understanding when a matrix needs to be formed and stored and when it does not!</p>
+</div>
+<div class="fragment">
+<p>In using QR factorization to solve least-squares, we don’t need to form <span class="math inline">\(\mathbf{Q}^\top\)</span>, we can just use the action of the <span class="math inline">\(\mathbf{Q}_k\)</span> matrices (the <span class="math inline">\(\mathbf{P}_k\)</span> matrices) to construct <span class="math inline">\(\mathbf{R}\)</span> from <span class="math inline">\(\mathbf{A}\)</span> and <span class="math inline">\(\mathbf{z} = \mathbf{Q}^\top \mathbf{b}\)</span> from <span class="math inline">\(\mathbf{b}\)</span>.</p>
+</div>
+<div class="fragment">
+<div class="callout callout-warning no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Theorem:</strong></p>
+</div>
+<div class="callout-content">
+<p>Q-less QR factorization by Householder reflections takes <span class="math inline">\(\sim (2mn^2 - \frac23 n^3)\)</span> flops.</p>
 </div>
 </div>
 </div>

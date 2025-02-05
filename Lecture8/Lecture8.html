@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.40">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Jamie Haddock">
+
+<title>Lecture 8: QR factorizations</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="Lecture8_files/libs/clipboard/clipboard.min.js"></script>
+<script src="Lecture8_files/libs/quarto-html/quarto.js"></script>
+<script src="Lecture8_files/libs/quarto-html/popper.min.js"></script>
+<script src="Lecture8_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="Lecture8_files/libs/quarto-html/anchor.min.js"></script>
+<link href="Lecture8_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="Lecture8_files/libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="Lecture8_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="Lecture8_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="Lecture8_files/libs/bootstrap/bootstrap-973236bd072d72a04ee9cd82dcc9cb29.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Lecture 8: QR factorizations</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Jamie Haddock </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="difference-of-orthogonal-vectors" class="level2">
+<h2 class="anchored" data-anchor-id="difference-of-orthogonal-vectors">Difference of orthogonal vectors</h2>
+<div class="callout callout-style-default callout-caution no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Exercise: Difference of orthogonal vectors
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Suppose that <span class="math inline">\(\mathbf{q}_1\)</span> and <span class="math inline">\(\mathbf{q}_2\)</span> are orthogonal vectors. Prove then that <span class="math display">\[\|\mathbf{q}_1 - \mathbf{q}_2\|^2 = \|\mathbf{q}_1\|^2 + \|\mathbf{q}_2\|^2.\]</span></p>
+</div>
+</div>
+<details>
+<summary>
+Answer:
+</summary>
+We can expand the norm using the inner product as <span class="math display">\[\|\mathbf{q}_1 - \mathbf{q}_2\|^2 = (\mathbf{q}_1 - \mathbf{q}_2)^\top (\mathbf{q}_1 - \mathbf{q}_2) = \mathbf{q}_1^\top \mathbf{q}_1 - 2 \mathbf{q}_1^\top \mathbf{q}_2 + \mathbf{q}_2^\top \mathbf{q}_2 = \|\mathbf{q}_1\|^2 + \|\mathbf{q}_2\|^2.\]</span>
+</details>
+<p>There is no possibility of subtractive cancellation here.</p>
+<div class="callout callout-style-default callout-warning no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Fact:
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Addition and subtraction of vectors are guaranteed to be well-conditioned when the vectors are orthogonal.</p>
+</div>
+</div>
+</section>
+<section id="onc-matrices" class="level2">
+<h2 class="anchored" data-anchor-id="onc-matrices">ONC matrices</h2>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Definition: ONC matrix
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>An <strong>ONC matrix</strong> is one whose columns are an orthonormal set of vectors.</p>
+</div>
+</div>
+<p>The following result follows from identifying the possible inner products between columns an ONC matrix.</p>
+<div class="callout callout-style-default callout-warning no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Theorem: ONC matrix
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Suppose <span class="math inline">\(\mathbf{Q}\)</span> is a real <span class="math inline">\(n \times k\)</span> ONC matrix. Then</p>
+<ol type="1">
+<li><span class="math inline">\(\mathbf{Q}^\top \mathbf{Q} = \mathbf{I}\)</span> (the <span class="math inline">\(k\times k\)</span> identity matrix)</li>
+<li><span class="math inline">\(\|\mathbf{Q}\mathbf{x}\|_2 = \|\mathbf{x}\|_2\)</span> for all <span class="math inline">\(k\)</span> vectors <span class="math inline">\(\mathbf{x}\)</span></li>
+<li><span class="math inline">\(\|\mathbf{Q}\|_2 = 1\)</span></li>
+</ol>
+</div>
+</div>
+<details>
+<summary>
+Proof:
+</summary>
+<ol type="1">
+<li>The first result follows since <span class="math inline">\((\mathbf{Q}^\top \mathbf{Q})_{ij} = \mathbf{q}_i^\top \mathbf{q}_j\)</span>.</li>
+<li><span class="math inline">\(\|\mathbf{Q}\mathbf{x}\|_2^2 = (\mathbf{Q}\mathbf{x})^\top \mathbf{Q}\mathbf{x} = \mathbf{x}^\top \mathbf{Q}^\top \mathbf{Q} \mathbf{x} = \mathbf{x}^\top \mathbf{x} = \|\mathbf{x}\|_2^2\)</span></li>
+<li><span class="math inline">\(\|\mathbf{Q}\|_2 = \max_{\|\mathbf{x}\| = 1} \|\mathbf{Q}\mathbf{x}\|_2 = \max_{\|\mathbf{x}\| = 1} \|\mathbf{x}\|_2 = 1\)</span></li>
+</ol>
+</details>
+</section>
+<section id="orthogonal-matrix" class="level2">
+<h2 class="anchored" data-anchor-id="orthogonal-matrix">Orthogonal matrix</h2>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Definition: Orthogonal matrix
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>An <strong>orthogonal matrix</strong> is a square matrix with orthonormal columns.</p>
+</div>
+</div>
+<p>Orthogonal matrices have even strong properties than ONC matrices.</p>
+<div class="callout callout-style-default callout-warning no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Theorem: Orthogonal matrix
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Suppose <span class="math inline">\(\mathbf{Q}\)</span> is an <span class="math inline">\(n \times n\)</span> real orthogonal matrix. Then</p>
+<ol type="1">
+<li><span class="math inline">\(\mathbf{Q}^\top = \mathbf{Q}^{-1}\)</span></li>
+<li><span class="math inline">\(\mathbf{Q}^\top\)</span> is also an orthogonal matrix</li>
+<li><span class="math inline">\(\kappa(\mathbf{Q}) = 1\)</span> in the 2-norm</li>
+<li>For any othre <span class="math inline">\(n \times n\)</span> matrix <span class="math inline">\(\mathbf{A}\)</span>, <span class="math inline">\(\|\mathbf{A}\mathbf{Q}\|_2 = \|\mathbf{A}\|_2\)</span></li>
+<li>If <span class="math inline">\(\mathbf{U}\)</span> is another <span class="math inline">\(n \times n\)</span> orthogonal matrix, then <span class="math inline">\(\mathbf{Q}\mathbf{U}\)</span> is also orthogonal.</li>
+</ol>
+</div>
+</div>
+</section>
+<section id="orthogonal-factorization" class="level1">
+<h1>Orthogonal factorization</h1>
+<p>We now come to another important variant of matrix factorization (like the LU factorization).</p>
+<section id="qr-factorization" class="level2">
+<h2 class="anchored" data-anchor-id="qr-factorization">QR factorization</h2>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Definition: QR factorization
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Every real <span class="math inline">\(m \times n\)</span> matrix <span class="math inline">\(\mathbf{A}\)</span> (<span class="math inline">\(m \ge n\)</span>) can be written as <span class="math inline">\(\mathbf{A} = \mathbf{Q} \mathbf{R}\)</span> where <span class="math inline">\(\mathbf{Q}\)</span> is an <span class="math inline">\(m \times m\)</span> orthogonal matrix and <span class="math inline">\(\mathbf{R}\)</span> is an <span class="math inline">\(m \times n\)</span> upper triangular matrix.</p>
+</div>
+</div>
+<p>In linear algebra, you may have learned to compute the QR factorization through the Gram-Schmidt process, but it turns out this approach is numerically unstable so we’ll learn a different technique!</p>
+<hr>
+<p>Suppose <span class="math inline">\(m \gg n\)</span> and visualize the QR factorization, <span class="math display">\[\mathbf{A} = \begin{bmatrix} \mathbf{q}_1 &amp; \mathbf{q}_2 &amp; \cdots &amp; \mathbf{q}_m \end{bmatrix} \begin{bmatrix} r_{11} &amp; r_{12} &amp; \cdots &amp; r_{1m} \\ 0 &amp; r_{22} &amp; \cdots &amp; r_2m \\ \vdots &amp; \vdots &amp; \ddots &amp; \vdots \\ 0 &amp; 0 &amp; \cdots &amp; r_{nn} \\ 0 &amp; 0 &amp; \cdots &amp; 0 \\ \vdots &amp; \vdots &amp;  &amp; \vdots \\ 0 &amp; 0 &amp; \cdots &amp; 0 \end{bmatrix}.\]</span></p>
+<p>Note that the many rows of all zeros at the bottom of <span class="math inline">\(\mathbf{R}\)</span> mean that <span class="math inline">\(\mathbf{q}_{n+1}, \mathbf{q}_{n+2}, \cdots, \mathbf{q}_m\)</span> do not contribute to the factorization.</p>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Definition: Thin QR factorization
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The thin QR factorization is <span class="math inline">\(\mathbf{A} = \hat{\mathbf{Q}}\hat{\mathbf{R}}\)</span> where <span class="math inline">\(\hat{\mathbf{Q}}\)</span> is an <span class="math inline">\(m \times n\)</span> ONC matrix and <span class="math inline">\(\hat{\mathbf{R}}\)</span> is an <span class="math inline">\(n \times n\)</span> upper triangular matrix.</p>
+</div>
+</div>
+<hr>
+<div id="53119390" class="cell" data-execution_count="39">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>A <span class="op">=</span> <span class="fu">rand</span>(<span class="fl">1</span>.<span class="op">:</span><span class="fl">9</span>.,<span class="fl">6</span>,<span class="fl">4</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="pp">@show</span> m,n <span class="op">=</span> <span class="fu">size</span>(A);</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>(m, n) = size(A) = (6, 4)</code></pre>
+</div>
+</div>
+<div id="8897a983" class="cell" data-execution_count="40">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">LinearAlgebra</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>Q,R <span class="op">=</span> <span class="fu">qr</span>(A);</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>Q</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<pre><code>6×6 LinearAlgebra.QRCompactWYQ{Float64, Matrix{Float64}, Matrix{Float64}}</code></pre>
+</div>
+</div>
+<div id="2c1f5b66" class="cell" data-execution_count="41">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>R</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<pre><code>4×4 Matrix{Float64}:
+ -9.21954  -8.89415  -9.32801  -14.3174
+  0.0      -9.63816  -8.71902   -4.11477
+  0.0       0.0       8.42419    6.95263
+  0.0       0.0       0.0       -7.46601</code></pre>
+</div>
+</div>
+<p>Strangely, <span class="math inline">\(\mathbf{Q}\)</span> is <span class="math inline">\(6 \times 6\)</span> (full QR) and <span class="math inline">\(\mathbf{R}\)</span> is <span class="math inline">\(4 \times 4\)</span> (thin QR). However, <span class="math inline">\(\mathbf{Q}\)</span> is given in a nonstandard form and converting to a standard matrix will recover the thin QR <span class="math inline">\(\hat{\mathbf{Q}}\)</span>.</p>
+<div id="eb53a034" class="cell" data-execution_count="42">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>Q̂ <span class="op">=</span> <span class="fu">Matrix</span>(Q)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<pre><code>6×4 Matrix{Float64}:
+ -0.867722   0.178213    -0.0641336   0.434546
+ -0.325396  -0.0109857    0.103146   -0.34541
+ -0.108465  -0.833696    -0.270741    0.147474
+ -0.325396  -0.0109857   -0.252971   -0.810981
+ -0.108465  -0.00366191   0.825754   -0.0925295
+ -0.108465  -0.522433     0.407533   -0.0621405</code></pre>
+</div>
+</div>
+<hr>
+<p><span class="math inline">\(\mathbf{Q}\)</span> is an orthogonal matrix and <span class="math inline">\(\hat{\mathbf{Q}}\)</span> is an ONC matrix.</p>
+<div id="0d5045ab" class="cell" data-execution_count="43">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">opnorm</span>(Q<span class="op">'*</span>Q <span class="op">-</span> I)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<pre><code>7.784676762789553e-16</code></pre>
+</div>
+</div>
+<div id="cb9a5e56" class="cell" data-execution_count="44">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">opnorm</span>(Q̂<span class="ch">'*Q̂ - I)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<pre><code>4.980709636773836e-16</code></pre>
+</div>
+</div>
+</section>
+<section id="least-squares-and-qr" class="level2">
+<h2 class="anchored" data-anchor-id="least-squares-and-qr">Least squares and QR</h2>
+<p>Suppose we have a thin QR factorization of <span class="math inline">\(\mathbf{A} = \hat{\mathbf{Q}} \hat{\mathbf{R}}\)</span> and we are solving least-squares via the normal equations:</p>
+<p><span class="math display">\[\begin{align*}
+\mathbf{A}^\top \mathbf{A} \mathbf{x} &amp;= \mathbf{A}^\top \mathbf{b} \\
+\hat{\mathbf{R}}^\top \hat{\mathbf{Q}}^\top \hat{\mathbf{Q}} \hat{\mathbf{R}} \mathbf{x} &amp;= \hat{\mathbf{R}}^\top \hat{\mathbf{Q}}^\top \mathbf{b} \\
+\hat{\mathbf{R}}^\top \hat{\mathbf{R}} \mathbf{x} &amp;= \hat{\mathbf{R}}^\top \hat{\mathbf{Q}}^\top \mathbf{b}
+\end{align*}\]</span></p>
+<p>Now, if <span class="math inline">\(\mathbf{A}\)</span> is full-rank, then <span class="math inline">\(\hat{\mathbf{R}}\)</span> is nonsingular and we have <span class="math display">\[\hat{\mathbf{R}} \mathbf{x} = \hat{\mathbf{Q}}^\top \mathbf{b}.\]</span></p>
+<p>Thus, the algorithm for solving least-squares by thin QR is:</p>
+<ol type="1">
+<li>Compute the thin QR factorization <span class="math inline">\(\mathbf{A} = \hat{\mathbf{Q}}\hat{\mathbf{R}}\)</span>.</li>
+<li>Compute <span class="math inline">\(\mathbf{z} = \hat{\mathbf{Q}}^\top \mathbf{b}\)</span>.</li>
+<li>Solve the <span class="math inline">\(n \times n\)</span> linear system <span class="math inline">\(\hat{\mathbf{R}} \mathbf{x} = \mathbf{z}\)</span> for <span class="math inline">\(\mathbf{x}\)</span> via backsubstitution.</li>
+</ol>
+<hr>
+<p>This algorithm is essentially what is implemented in the Julia <code>\</code> operator.</p>
+<div id="32349c45" class="cell" data-execution_count="46">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="st">    lsqrfact(A,b)</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="st">Solve a linear least-squares problem by QR factorization.  Returns the minimizer of ||b - Ax||.</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">lsqrfact</span>(A,b)</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    Q,R <span class="op">=</span> <span class="fu">qr</span>(A)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    z <span class="op">=</span> Q<span class="op">'*</span>b</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> FNC.<span class="fu">backsub</span>(R,z)</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> x</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<pre><code>lsqrfact</code></pre>
+</div>
+</div>
+<p>Recall previously we saw that the normal equations can be unstable – this method doesn’t change that fact, but allows us to solve them up to the loss of accuracy predicted due to the instability.</p>
+<div id="e4d7ea9f" class="cell" data-execution_count="47">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> <span class="fu">range</span>(<span class="fl">0</span>,<span class="fl">3</span>,length<span class="op">=</span><span class="fl">400</span>)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> [ <span class="fu">x-&gt;sin</span>(x)<span class="op">^</span><span class="fl">2</span>, <span class="fu">x-&gt;cos</span>((<span class="fl">1</span><span class="op">+</span><span class="fl">1e-7</span>)<span class="op">*</span>x)<span class="op">^</span><span class="fl">2</span>, x<span class="op">-&gt;</span><span class="fl">1</span>. ]</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>A <span class="op">=</span> [ <span class="fu">f</span>(t) for t <span class="kw">in</span> t, f <span class="kw">in</span> f ]</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> [<span class="fl">1</span>., <span class="fl">2</span>, <span class="fl">1</span>]</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>b <span class="op">=</span> A<span class="op">*</span>x;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div id="3a768706" class="cell" data-execution_count="48">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>observed_error <span class="op">=</span> <span class="fu">norm</span>(<span class="fu">lsqrfact</span>(A,b) <span class="op">-</span> x)<span class="op">/</span><span class="fu">norm</span>(x);</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="pp">@show</span> observed_error;</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>κ <span class="op">=</span> <span class="fu">cond</span>(A)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="pp">@show</span> error_bound <span class="op">=</span> <span class="fu">κ*eps</span>();</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>observed_error = 6.4042143577854036e-9
+error_bound = κ * eps() = 4.053030227715619e-9</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="computing-qr-factorizations" class="level1">
+<h1>Computing QR factorizations</h1>
+<p>One can compute a thin QR factorization using the outer product formula (like we did with LU) factorization, which is essentially the Gram-Schmidt process. However, this algorithm is unstable, and a better approach is to use products of orthogonal matrices to introduce zeros into the lower triangular portion of the matrix. (We exploit the fact that products of orthogonal matrices are orthogonal.)</p>
+<section id="householder-reflections" class="level2">
+<h2 class="anchored" data-anchor-id="householder-reflections">Householder reflections</h2>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Definition: Householder reflector
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A <strong>Householder reflector</strong> is a matrix of the form <span class="math display">\[\mathbf{P} = \mathbf{I} - 2\mathbf{v}\mathbf{v}^\top,\]</span> where <span class="math inline">\(\mathbf{v}\)</span> is any unit vector (in the 2-norm).</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Theorem: Householder reflector part 1
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A Householder reflector is:</p>
+<ol type="1">
+<li>symmetric</li>
+<li>orthogonal</li>
+</ol>
+</div>
+</div>
+<hr>
+<p>Note that <span class="math inline">\(\mathbf{P}\mathbf{x} = \mathbf{x} - 2 \mathbf{v}(\mathbf{v}^\top\mathbf{x})\)</span>. Visualizing this equation explains why these are called <em>reflectors</em>.</p>
+<p><img src="figs/householder.png" height="400"></p>
+<hr>
+<p>Now, we may choose <span class="math inline">\(\mathbf{v}\)</span> so that this reflection <span class="math inline">\(\mathbf{P}\mathbf{z}\)</span> is very sparse. In fact, we choose <span class="math inline">\(\mathbf{v}\)</span> so that <span class="math display">\[\mathbf{P}\mathbf{z} = \begin{bmatrix} \pm \|\mathbf{z}\| \\ 0 \\ \vdots \\ 0 \end{bmatrix} = \pm \|\mathbf{z}\| \mathbf{e}_1.\]</span></p>
+<hr>
+<div class="callout callout-style-default callout-warning no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Theorem: Householder reflection part 2
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>If <span class="math inline">\(\mathbf{w} = \|\mathbf{z}\| \mathbf{e}_1 - \mathbf{z}\)</span> and <span class="math inline">\(\mathbf{v} = \mathbf{w}/\|\mathbf{w}\|\)</span> then <span class="math display">\[\mathbf{P}\mathbf{z} = \|\mathbf{z}\| \mathbf{e}_1.\]</span></p>
+</div>
+</div>
+<details>
+<summary>
+Proof:
+</summary>
+Note that <span class="math display">\[\begin{align*}
+\mathbf{w}^\top \mathbf{w} &amp;= 2\|\mathbf{z}\|^2 - 2\|\mathbf{z}\|z_1\\
+\mathbf{w}^\top \mathbf{z} &amp;= \|\mathbf{z}\| z_1 - \|\mathbf{z}\|^2,
+\end{align*}\]</span> and thus, <span class="math display">\[\mathbf{P}\mathbf{z} = \mathbf{z} - 2 (\mathbf{v}^\top \mathbf{z}) \mathbf{v} = \mathbf{z} - 2 \frac{\mathbf{w}^\top \mathbf{z}}{\mathbf{w}^\top \mathbf{w}} \mathbf{w} = \mathbf{z} - 2 \frac{\|\mathbf{z}\| z_1 - \|\mathbf{z}\|^2}{2\|\mathbf{z}\|^2 - 2\|\mathbf{z}\|z_1} \mathbf{w} = \mathbf{z} + \mathbf{w} = \|\mathbf{z}\|\mathbf{e}_1.\]</span>
+</details>
+</section>
+<section id="factorization-algorithm-demo" class="level2">
+<h2 class="anchored" data-anchor-id="factorization-algorithm-demo">Factorization algorithm demo</h2>
+<div id="dedd9d95" class="cell" data-execution_count="49">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>A <span class="op">=</span> <span class="fu">rand</span>(<span class="fu">float</span>(<span class="fl">1</span><span class="op">:</span><span class="fl">9</span>),<span class="fl">6</span>,<span class="fl">4</span>)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>m,n <span class="op">=</span> <span class="fu">size</span>(A)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<pre><code>(6, 4)</code></pre>
+</div>
+</div>
+<div id="12e2d51a" class="cell" data-execution_count="50">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>z <span class="op">=</span> A[<span class="op">:</span>,<span class="fl">1</span>];</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>v <span class="op">=</span> <span class="fu">normalize</span>(z <span class="op">-</span> <span class="fu">norm</span>(z)<span class="op">*</span>[<span class="fl">1</span>;<span class="fu">zeros</span>(m<span class="op">-</span><span class="fl">1</span>)])</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>P₁ <span class="op">=</span> I <span class="op">-</span> <span class="fl">2</span>v<span class="op">*</span>v<span class="op">'</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<pre><code>6×6 Matrix{Float64}:
+ 0.263117   0.613941   0.175412    0.526235   0.350823    0.350823
+ 0.613941   0.48849   -0.146146   -0.438437  -0.292292   -0.292292
+ 0.175412  -0.146146   0.958244   -0.125268  -0.0835119  -0.0835119
+ 0.526235  -0.438437  -0.125268    0.624196  -0.250536   -0.250536
+ 0.350823  -0.292292  -0.0835119  -0.250536   0.832976   -0.167024
+ 0.350823  -0.292292  -0.0835119  -0.250536  -0.167024    0.832976</code></pre>
+</div>
+</div>
+<div id="66663c97" class="cell" data-execution_count="51">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>P₁<span class="op">*</span>z</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<pre><code>6-element Vector{Float64}:
+ 11.401754250991381
+  0.0
+  0.0
+  4.440892098500626e-16
+ -4.440892098500626e-16
+ -4.440892098500626e-16</code></pre>
+</div>
+</div>
+<hr>
+<p>Now we recurse! We redefine <span class="math inline">\(\mathbf{A}\)</span> and work on the submatrix that does not include its first row or column.</p>
+<div id="ec40df16" class="cell" data-execution_count="52">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>A <span class="op">=</span> P₁<span class="op">*</span>A</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<pre><code>6×4 Matrix{Float64}:
+ 11.4018       12.1911     9.99846  11.8403
+  0.0          -1.8245    -1.4982   -1.86589
+ -1.11022e-16   6.05014    2.28623  -0.390253
+  0.0           0.150431   5.85869   4.82924
+  0.0           1.10029    2.57246   0.219493
+  0.0           1.10029    2.57246   4.21949</code></pre>
+</div>
+</div>
+<div id="43c26a75" class="cell" data-execution_count="53">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>z <span class="op">=</span> A[<span class="fl">2</span><span class="op">:</span>m,<span class="fl">2</span>]</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>v <span class="op">=</span> <span class="fu">normalize</span>(z <span class="op">-</span> <span class="fu">norm</span>(z)<span class="op">*</span>[<span class="fl">1</span>;<span class="fu">zeros</span>(m<span class="op">-</span><span class="fl">2</span>)])</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>P₂ <span class="op">=</span> I <span class="op">-</span> <span class="fl">2</span>v<span class="op">*</span>v<span class="op">'</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<pre><code>5×5 Matrix{Float64}:
+ -0.280271    0.929396    0.0231086    0.169021     0.169021
+  0.929396    0.325317   -0.0167754   -0.122699    -0.122699
+  0.0231086  -0.0167754   0.999583    -0.00305079  -0.00305079
+  0.169021   -0.122699   -0.00305079   0.977686    -0.0223142
+  0.169021   -0.122699   -0.00305079  -0.0223142    0.977686</code></pre>
+</div>
+</div>
+<div id="7a5f20a6" class="cell" data-execution_count="54">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>A[<span class="fl">2</span><span class="op">:</span>m,<span class="op">:</span>] <span class="op">=</span> P₂<span class="op">*</span>A[<span class="fl">2</span><span class="op">:</span>m,<span class="op">:</span>]</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>A</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<pre><code>6×4 Matrix{Float64}:
+ 11.4018       12.1911        9.99846  11.8403
+ -1.03184e-16   6.50976       3.5497    1.02213
+ -3.61174e-17   1.5525e-15   -1.37823  -2.48678
+  1.86244e-18   3.75082e-17   5.76758   4.77711
+  1.36223e-17   1.25457e-16   1.90604  -0.161783
+  1.36223e-17   2.7015e-16    1.90604   3.83822</code></pre>
+</div>
+</div>
+<hr>
+<div id="b3900530" class="cell" data-execution_count="55">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> j <span class="kw">in</span> <span class="fl">3</span><span class="op">:</span>n</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>    z <span class="op">=</span> A[j<span class="op">:</span>m,j]</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> <span class="fu">normalize</span>(z <span class="op">-</span> <span class="fu">norm</span>(z)<span class="op">*</span>[<span class="fl">1</span>;<span class="fu">zeros</span>(m<span class="op">-</span>j)])</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>    P <span class="op">=</span> I <span class="op">-</span> <span class="fl">2</span>v<span class="op">*</span>v<span class="op">'</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>    A[j<span class="op">:</span>m,<span class="op">:</span>] <span class="op">=</span> P<span class="op">*</span>A[j<span class="op">:</span>m,<span class="op">:</span>]</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div id="f833da28" class="cell" data-execution_count="56">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>R <span class="op">=</span> <span class="fu">triu</span>(A)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<pre><code>6×4 Matrix{Float64}:
+ 11.4018  12.1911   9.99846  11.8403
+  0.0      6.50976  3.5497    1.02213
+  0.0      0.0      6.51386   5.83174
+  0.0      0.0      0.0       3.12311
+  0.0      0.0      0.0       0.0
+  0.0      0.0      0.0       0.0</code></pre>
+</div>
+</div>
+<p>Now, note that we didn’t explicitly build <span class="math inline">\(\hat{\mathbf{Q}}\)</span> here. <span class="math inline">\(\hat{\mathbf{Q}}\)</span> is derived from the products of the Householder reflectors, but these matrices are getting smaller as they only need to act on a submatrix of <span class="math inline">\(\mathbf{A}\)</span>. To explicitly build <span class="math inline">\(\hat{\mathbf{Q}}\)</span>, we have to pad out the Householder reflectors <span class="math inline">\(\mathbf{P}_k\)</span> to make them appropriately sized.</p>
+<hr>
+<p>Define <span class="math inline">\(\mathbf{Q}_k = \begin{bmatrix} \mathbf{I}_{k-1} &amp; \mathbf{0} \\ \mathbf{0} &amp; \mathbf{P}_k \end{bmatrix}\)</span>. First, note that <span class="math inline">\(\mathbf{Q}_k\)</span> is orthogonal and that <span class="math display">\[\mathbf{Q}_n \mathbf{Q}_{n-1} \cdots \mathbf{Q}_1 \mathbf{A} = \mathbf{R}.\]</span> Thus, we have that <span class="math inline">\(\mathbf{Q}^\top = \mathbf{Q}_n \mathbf{Q}_{n-1} \cdots \mathbf{Q}_1\)</span>. Now, rather than explicitly building these <span class="math inline">\(\mathbf{Q}_k\)</span> matrices explicitly and constructing their product, we can simply begin from <span class="math inline">\(\mathbf{I}\)</span> and do the actions of the <span class="math inline">\(\mathbf{Q}_k\)</span> matrices (the <span class="math inline">\(\mathbf{P}_k\)</span> matrices) in the same way we did on <span class="math inline">\(\mathbf{A}\)</span>.</p>
+<hr>
+<div id="bc859ecb" class="cell" data-execution_count="57">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="st">    qrfact(A)</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="st">QR factorization by Householder reflections.  Returns Q and R.</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">qrfact</span>(A)</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>    m,n <span class="op">=</span> <span class="fu">size</span>(A)</span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>    Qt <span class="op">=</span> <span class="fu">diagm</span>(<span class="fu">ones</span>(m))</span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>    R <span class="op">=</span> <span class="fu">float</span>(<span class="fu">copy</span>(A))</span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> k <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span>n</span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>        z <span class="op">=</span> R[k<span class="op">:</span>m,k]</span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>        w <span class="op">=</span> [ <span class="fu">-sign</span>(z[<span class="fl">1</span>])<span class="fu">*norm</span>(z) <span class="op">-</span> z[<span class="fl">1</span>]; <span class="op">-</span>z[<span class="fl">2</span><span class="op">:</span><span class="kw">end</span>] ]</span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>        nrmw <span class="op">=</span> <span class="fu">norm</span>(w)</span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> nrmw <span class="op">&lt;</span> <span class="fu">eps</span>() <span class="cf">continue</span>; <span class="cf">end</span>  <span class="co">#skip this iteration</span></span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>        v <span class="op">=</span> w <span class="op">/</span> nrmw;</span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Apply the reflection to each relevant column of A and Q</span></span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> j <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span>n</span>
+<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a>            R[k<span class="op">:</span>m,j] <span class="op">-=</span> <span class="fu">v*</span>( <span class="fl">2</span><span class="fu">*</span>(v<span class="op">'*</span>R[k<span class="op">:</span>m,j]) )</span>
+<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a>        <span class="cf">end</span></span>
+<span id="cb33-19"><a href="#cb33-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> j <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span>m</span>
+<span id="cb33-20"><a href="#cb33-20" aria-hidden="true" tabindex="-1"></a>            Qt[k<span class="op">:</span>m,j] <span class="op">-=</span> <span class="fu">v*</span>( <span class="fl">2</span><span class="fu">*</span>(v<span class="op">'*</span>Qt[k<span class="op">:</span>m,j]) )</span>
+<span id="cb33-21"><a href="#cb33-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">end</span></span>
+<span id="cb33-22"><a href="#cb33-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb33-23"><a href="#cb33-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> Qt<span class="op">'</span>, <span class="fu">triu</span>(R)</span>
+<span id="cb33-24"><a href="#cb33-24" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<pre><code>qrfact</code></pre>
+</div>
+</div>
+</section>
+<section id="q-less-qr" class="level2">
+<h2 class="anchored" data-anchor-id="q-less-qr">Q-less QR</h2>
+<p>Now, note that in many applications we don’t explicitly need the matrix <span class="math inline">\(\mathbf{Q}\)</span>.</p>
+<p>For instance, in least-squares, we only need <span class="math inline">\(\mathbf{Q}^\top \mathbf{b}\)</span>. We don’t actually need <span class="math inline">\(\mathbf{Q}^\top\)</span>, we just need the image of <span class="math inline">\(\mathbf{b}\)</span> under <span class="math inline">\(\mathbf{Q}^\top\)</span> as an operator! This is an important topic in scientific computing – understanding when a matrix needs to be formed and stored and when it does not!</p>
+<p>In using QR factorization to solve least-squares, we don’t need to form <span class="math inline">\(\mathbf{Q}^\top\)</span>, we can just use the action of the <span class="math inline">\(\mathbf{Q}_k\)</span> matrices (the <span class="math inline">\(\mathbf{P}_k\)</span> matrices) to construct <span class="math inline">\(\mathbf{R}\)</span> from <span class="math inline">\(\mathbf{A}\)</span> and <span class="math inline">\(\mathbf{z} = \mathbf{Q}^\top \mathbf{b}\)</span> from <span class="math inline">\(\mathbf{b}\)</span>.</p>
+<div class="callout callout-style-default callout-warning no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Theorem:
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Q-less QR factorization by Householder reflections takes <span class="math inline">\(\sim (2mn^2 - \frac23 n^3)\)</span> flops.</p>
+</div>
+</div>
+<!--
+[verbose test]{.content-hidden when-format="revealjs" when-format="pptx"}
+
+::: {.callout-caution icon=false}
+## Exercise: 
+
+:::
+
+<details><summary>Answer:</summary> </details>
+
+
+::: {.callout-note icon=false}
+## Definition: 
+ 
+:::
+
+
+::: {.callout-tip icon=false}
+## Note: 
+ 
+:::
+-->
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
